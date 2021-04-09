@@ -1,0 +1,9 @@
+*~
+*.o
+*.x
+*#*
+*.obj
+bins/
+runs/*
+
+!/runs/run_example.sh

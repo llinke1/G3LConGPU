@@ -135,7 +135,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@astro_laila](https://twitter.com/astro_laila) - email
+Laila Linke - [@astro_laila](https://twitter.com/astro_laila) - llinke@astro.uni-bonn.de
 
 Project Link: [https://github.com/llinke1/G3LConGPU](https://github.com/llinke1/G3LConGPU)
 

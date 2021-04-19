@@ -46,9 +46,9 @@ DIR_DATA1=${11}
 
 if [ "$IS_AUTO" == 1 ];
 then   # Folder with data files for second sample
-    DIR_DATA2=${12}
+    DIR_DATA2=$DIR_DATA1
 else
-    DIR_DATA2=DIR_DATA1
+    DIR_DATA2=${12}
 fi
 
 # Binning

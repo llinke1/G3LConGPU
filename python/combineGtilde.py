@@ -19,9 +19,10 @@ jn=int(sys.argv[1])
 N=int(sys.argv[2])
 fn_out=sys.argv[3]
 fns_gtilde=sys.argv[4:N+4]
+
 # Take out jackknife
 if(jn > 0):
-    fns_gtilde=fns_gtilde.pop(jn-1)
+    fns_gtilde.pop(jn-1)
 
 # Combine Gtilde
 # Read in first

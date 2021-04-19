@@ -96,11 +96,11 @@ do
     then
 	echo ">GtildePhys for $tile | $(date)"
    
-        $BIN_GTILDE $DIR_DATA1/$tile.$NAME_SOURCES.dat $DIR_DATA1/$tile.$NAME_OBJECTS.dat $DIR_DATA2/$tile.$NAME_OBJECTS.dat $FILE_OMEGA $THETA_MIN $THETA_MAX $R_MIN $R_MAX $NBINS $SIGMA $FILE_SIGMACRIT $FILE_DA $IS_PHYS  > $DIR_PRODUCTS/gtilde/$tile.gtilde_phys_single.dat
+       $BIN_GTILDE $DIR_DATA1/$tile.$NAME_SOURCES.dat $DIR_DATA1/$tile.$NAME_OBJECTS.dat $DIR_DATA2/$tile.$NAME_OBJECTS.dat $FILE_OMEGA $THETA_MIN $THETA_MAX $R_MIN $R_MAX $NBINS $SIGMA $FILE_SIGMACRIT $FILE_DA $IS_PHYS  > $DIR_PRODUCTS/gtilde/$tile.gtilde_phys_single.dat
     else
 	echo ">Gtilde for $tile | $(date)"
    
-        $BIN_GTILDE $DIR_DATA1/$tile.$NAME_SOURCES.dat $DIR_DATA1/$tile.$NAME_OBJECTS.dat $DIR_DATA2/$tile.$NAME_OBJECTS.dat $FILE_OMEGA $THETA_MIN $THETA_MAX $R_MIN $R_MAX $NBINS $SIGMA $FILE_SIGMACRIT $FILE_DA $IS_PHYS  > $DIR_PRODUCTS/gtilde/$tile.gtilde_single.dat
+       $BIN_GTILDE $DIR_DATA1/$tile.$NAME_SOURCES.dat $DIR_DATA1/$tile.$NAME_OBJECTS.dat $DIR_DATA2/$tile.$NAME_OBJECTS.dat $FILE_OMEGA $THETA_MIN $THETA_MAX $R_MIN $R_MAX $NBINS $SIGMA $FILE_SIGMACRIT $FILE_DA $IS_PHYS  > $DIR_PRODUCTS/gtilde/$tile.gtilde_single.dat
     fi
 done
 
@@ -113,7 +113,7 @@ if [ "$IS_PHYS" -gt 0 ]
 then
     python $DIR_PYTHON/combineGtilde.py 0 $NTILES $DIR_PRODUCTS/gtilde/all.gtilde_phys.dat $DIR_PRODUCTS/gtilde/*.gtilde_phys_single.dat 
 else
-    python $DIR_PYTHON/combineGtilde.py 0 $NTILES $DIR_PRODUCTS/gtilde/all.gtilde.dat $DIR_PRODUCTS/gtilde/*.gtilde_single.dat
+  python $DIR_PYTHON/combineGtilde.py 0 $NTILES $DIR_PRODUCTS/gtilde/all.gtilde.dat $DIR_PRODUCTS/gtilde/*.gtilde_single.dat
 fi
 
 ############### Combine Gtilde for each jackknife sample ####################
@@ -126,7 +126,7 @@ then
     I=1
     
     
-    while [ $I -lt $NUMBER_JN ]; # Go through all Jackknifes
+    while [ $I -lt $NTILES ]; # Go through all Jackknifes
     do
 	# Iterator Variable for Thread Number
 	NUMBER_JOBS=0
@@ -137,14 +137,14 @@ then
 	do
 	    if [ "$IS_PHYS" -gt 0 ]
 	    then
-		python $DIR_PYTHON/combineGtilde.py $I $NTILES $DIR_PRODUCTS/gtilde_allTiles_GPU/jn_$I.gtilde_phys.dat $DIR_PRODUCTS/gtilde/*.gtilde_phys_single.dat  &
+		python $DIR_PYTHON/combineGtilde.py $I $NTILES $DIR_PRODUCTS/gtilde/jn_$I.gtilde_phys.dat $DIR_PRODUCTS/gtilde/*.gtilde_phys_single.dat  &
 	    else
-		python $DIR_PYTHON/combineGtilde.py $I $NTILES $DIR_PRODUCTS/gtilde_allTiles_GPU/jn_$I.gtilde.dat $DIR_PRODUCTS/gtilde/*.gtilde_single.dat &
+		python $DIR_PYTHON/combineGtilde.py $I $NTILES $DIR_PRODUCTS/gtilde/jn_$I.gtilde.dat $DIR_PRODUCTS/gtilde/*.gtilde_single.dat &
 	    fi
 	    ((NUMBER_JOBS++))
 	    ((I++))
 	    # Check if Number of Jackknife Samples is reached
-	    if [ $I -ge $NUMBER_JN ];
+	    if [ $I -ge $NTILES ];
 	    then break
 	    fi
 	done

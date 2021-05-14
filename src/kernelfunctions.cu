@@ -339,8 +339,8 @@ __global__ void g3lcong::addToTriplecount(double* x1, double* y1, double* z1, do
       int index_z = int(zgal1-z_min/z_binwidth); //index of redshift
       double d1=Dcom[index_z]; //Comoving distance to galaxy [Mpc]
 
-      double xgal1=d1*x1[i]; //Physical x coordinate [Mpc]
-      double ygal1=d1*y1[i]; //Physical y coordinate [Mpc]
+      double xgal1=d1*x1[i]*0.000290889; //Physical x coordinate [Mpc]
+      double ygal1=d1*y1[i]*0.000290889; //Physical y coordinate [Mpc]
 
       for(int j=0; j<N2; j+=blockDim.x*gridDim.x)
 	{
@@ -348,8 +348,8 @@ __global__ void g3lcong::addToTriplecount(double* x1, double* y1, double* z1, do
 	  index_z = int(zgal2-z_min/z_binwidth); //index of redshift
 	  double d2=Dcom[index_z]; //Comoving distance to galaxy [Mpc]
 
-	  double xgal2=d2*x2[j]; //Physical x coordinate [Mpc]
-	  double ygal2=d2*y2[j]; //Physical y coordinate [Mpc]
+	  double xgal2=d2*x2[j]*0.000290889; //Physical x coordinate [Mpc]
+	  double ygal2=d2*y2[j]*0.000290889; //Physical y coordinate [Mpc]
 
 	  // Projected Separation between gal 1 und gal 2 [Mpc]
 	  double rp12=sqrt((xgal2-xgal1)*(xgal2-xgal1)+(ygal2-ygal1)*(ygal2-ygal1));
@@ -368,8 +368,8 @@ __global__ void g3lcong::addToTriplecount(double* x1, double* y1, double* z1, do
 		  index_z = int(zgal3-z_min/z_binwidth); //index of redshift
 		  double d3=Dcom[index_z]; //Comoving distance to galaxy [Mpc]
 		  
-		  double xgal3=d3*x3[j]; //Physical x coordinate [Mpc]
-		  double ygal3=d3*y3[j]; //Physical y coordinate [Mpc]
+		  double xgal3=d3*x3[j]*0.000290889; //Physical x coordinate [Mpc]
+		  double ygal3=d3*y3[j]*0.000290889; //Physical y coordinate [Mpc]
 		  
 		  // Projected Separation between gal 1 und gal 3 [Mpc]
 		  double rp13=sqrt((xgal3-xgal1)*(xgal3-xgal1)+(ygal3-ygal1)*(ygal3-ygal1));

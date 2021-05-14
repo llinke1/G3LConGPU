@@ -29,7 +29,9 @@ int main(int argc, char* argv[])
 
   // File with angular diameter distance, if "none": distance is 1 [Mpc]
   std::string filename_com_distance = argv[7];
- 
+
+  std::cerr<<"Finished reading CMD Line"<<std::endl;
+  
   // Reading in galaxies and copying to device
 
   // x,y, z vectors
@@ -116,6 +118,8 @@ int main(int argc, char* argv[])
   cudaMemcpy(dev_com_distance, com_distance.data(), num_bins*sizeof(double), cudaMemcpyHostToDevice);
 
 
+  std::cerr<<"Finished Copying to Device"<<std::endl;
+  
   // Calculate Triplecount
 
   // Declare container for Triplecount
@@ -134,9 +138,11 @@ int main(int argc, char* argv[])
 
   double r_binwidth=log(r_max/r_min)/num_bins;
   double z_binwidth=(z_max-z_min)/num_bins;
-
+  std::cerr<<"Started Calculating Triplecount"<<std::endl;
+  
   g3lcong::addToTriplecount<<<BLOCKS, THREADS>>>(dev_x1, dev_y1, dev_z1, dev_x2, dev_y2, dev_z2, dev_x3, dev_y3, dev_z3, N1, N2, N3, num_bins, r_min, r_binwidth,  dev_com_distance, z_min, z_binwidth, dev_triplecount); 
 
+  std::cerr<<"Finished calculating Triplecount"<<std::endl;
  // Free memory on device
   cudaFree(dev_x1);
   cudaFree(dev_y1);
@@ -162,6 +168,7 @@ int main(int argc, char* argv[])
 
   cudaFree(dev_triplecount);
 
+  std::cerr<<"Started output"<<std::endl;
 
   // Output
   for(int i=0; i<num_bins; i++)
@@ -179,17 +186,23 @@ int main(int argc, char* argv[])
 		  for(int m=0; m<num_bins; m++)
 		    {
 		      double pi23=exp(log(r_min)+m*r_binwidth);
+		      int index=i*num_bins*num_bins*num_bins*num_bins
+			+j*num_bins*num_bins*num_bins
+			+k*num_bins*num_bins
+			+l*num_bins
+			+m;
 		      std::cout<<r12<<" "
 			       <<r13<<" "
 			       <<r23<<" "
 			       <<pi12<<" "
 			       <<pi23<<" "
+			       <<triplecount[index]<<" "
 			       <<std::endl;
 		    };
 		};
 	    };
 	};
     };
-  
+  std::cerr<<"Finished output"<<std::endl;
   return 0;
 }

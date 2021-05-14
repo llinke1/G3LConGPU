@@ -101,8 +101,8 @@ __global__ void addToGtildePhysical(double* x1, double* y1, double* x2, double* 
 
 /**
  * Kernel function, which updates the paircount with or w/o z weighting
- * Function is executed for each thread and updates Gtilde and weight 
- * Gtilde and weight are stored in global (not shared) memory
+ * Function is executed for each thread and updates paircount 
+ * Paircount is stored in global (not shared) memory
  *
  * @param x1 x-coordinates of lens1 galaxies [arcmin], stored on device
  * @param y1 y-coordinates of lens1 galaxies [arcmin], stored on device
@@ -124,5 +124,33 @@ __global__ void addToPaircount(double* x1, double* y1, double* x2, double* y2,
 			       double theta_min, double binwidth, double sigma2,
 			       double* paircount);
 
+
+/**
+ * Kernel function, which updates the triplecount 
+ * Function is executed for each thread and updates triplecount 
+ * Triplecount is stored in global (not shared) memory
+ *
+ * @param x1 x-coordinates of lens1 galaxies [arcmin], stored on device
+ * @param y1 y-coordinates of lens1 galaxies [arcmin], stored on device
+ * @param z1 redshift of lens1 galaxies, stored on device
+ * @param x2 x-coordinates of lens2 galaxies [arcmin], stored on device
+ * @param y2 y-coordinates of lens2 galaxies [arcmin], stored on device
+ * @param z2 redshift of lens3 galaxies, stored on device
+ * @param x3 x-coordinates of lens3 galaxies [arcmin], stored on device
+ * @param y3 y-coordinates of lens3 galaxies [arcmin], stored on device
+ * @param N1 Number of lens 1 galaxies
+ * @param N2 Number of lens 2 galaxies
+ * @param N3 Number of lens 3 galaxies
+ * @param num_bins Number of bins for Triplecount
+ * @param r_min minimal rp or pi [same unit as Dcom]
+ * @param r_binwidth logarithmic binwidth of rp/pi
+ * @param Dcom Precomputed comoving distance [Probably Mpc] (on device!)
+ * @param z_min Minimal z for Dcom
+ * @param z_binwidth binwidth of z for Dcom
+ * @param triplecount Storage for triplecount on global memory
+ */
+  __global__ void addToTriplecount(double* x1, double* y1, double* z1, double* x2, double* y2, double* z2, double* x3, double* y3, double* z3, int N1, int N2, int N3, int num_bins, double r_min, double r_binwidth, double *Dcom, double z_min, double z_binwidth, int* triplecount); 
+
+  
 }
 #endif //KERNELFUNCTIONS_CUH

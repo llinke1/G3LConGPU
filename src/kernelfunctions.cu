@@ -326,3 +326,76 @@ __global__ void g3lcong::addToPaircount(double* x1, double* y1,
   return;
 }
 
+
+__global__ void g3lcong::addToTriplecount(double* x1, double* y1, double* z1, double* x2, double* y2, double* z2, double* x3, double* y3, double* z3, int N1, int N2, int N3, int num_bins, double r_min, double r_binwidth, double *Dcom, double z_min, double z_binwidth, int* triplecount)
+{
+  // global ID of this thread
+  int thread_index = blockIdx.x * blockDim.x + threadIdx.x;
+  
+  for(int i=thread_index; i<N1; i+=blockDim.x*gridDim.x)
+    {
+      // get physical coordinates of galaxies
+      double zgal1=z1[i]; //redshift
+      int index_z = int(zgal1-z_min/z_binwidth); //index of redshift
+      double d1=Dcom[index_z]; //Comoving distance to galaxy [Mpc]
+
+      double xgal1=d1*x1[i]; //Physical x coordinate [Mpc]
+      double ygal1=d1*y1[i]; //Physical y coordinate [Mpc]
+
+      for(int j=0; j<N2; j+=blockDim.x*gridDim.x)
+	{
+	  double zgal2=z2[i]; //redshift
+	  index_z = int(zgal2-z_min/z_binwidth); //index of redshift
+	  double d2=Dcom[index_z]; //Comoving distance to galaxy [Mpc]
+
+	  double xgal2=d2*x2[j]; //Physical x coordinate [Mpc]
+	  double ygal2=d2*y2[j]; //Physical y coordinate [Mpc]
+
+	  // Projected Separation between gal 1 und gal 2 [Mpc]
+	  double rp12=sqrt((xgal2-xgal1)*(xgal2-xgal1)+(ygal2-ygal1)*(ygal2-ygal1));
+	  // Line-of-Sight distance between gal1 und gal 2 [Mpc]
+	  double pi12=abs(d2-d1);
+
+	  int index_rp12=int(log(rp12/r_min)/r_binwidth);
+	  int index_pi12=int(log(pi12/r_min)/r_binwidth);
+
+	  if(index_rp12 < num_bins && index_pi12 < num_bins)
+	    {
+
+	      for(int k=0; k<N3; k+=blockDim.x*gridDim.x)
+		{
+		  double zgal3=z3[i]; //redshift
+		  index_z = int(zgal3-z_min/z_binwidth); //index of redshift
+		  double d3=Dcom[index_z]; //Comoving distance to galaxy [Mpc]
+		  
+		  double xgal3=d3*x3[j]; //Physical x coordinate [Mpc]
+		  double ygal3=d3*y3[j]; //Physical y coordinate [Mpc]
+		  
+		  // Projected Separation between gal 1 und gal 3 [Mpc]
+		  double rp13=sqrt((xgal3-xgal1)*(xgal3-xgal1)+(ygal3-ygal1)*(ygal3-ygal1));
+		  // Projected Separation between gal 2 und gal 3 [Mpc]
+		  double rp23=sqrt((xgal3-xgal2)*(xgal3-xgal2)+(ygal3-ygal2)*(ygal3-ygal2));
+		  
+		  // Line-of-Sight distance between gal2 und gal 3 [Mpc]
+		  double pi23=abs(d3-d2);
+		  
+		  int index_rp13=int(log(rp13/r_min)/r_binwidth);
+		  int index_rp23=int(log(rp23/r_min)/r_binwidth);
+		  int index_pi23=int(log(pi23/r_min)/r_binwidth);
+		  
+		  if(index_rp13 < num_bins && index_rp23<num_bins && index_pi23 > num_bins)
+		    {
+		  
+		      int index=index_rp12*num_bins*num_bins*num_bins*num_bins
+			+index_rp13*num_bins*num_bins*num_bins
+			+index_rp23*num_bins*num_bins
+			+index_pi12*num_bins
+			+index_pi23;
+		  
+		      atomicAdd(&triplecount[index], 1);
+		    };
+		};
+	    };
+	}
+    }
+}

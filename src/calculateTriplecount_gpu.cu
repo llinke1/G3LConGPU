@@ -30,14 +30,18 @@ int main(int argc, char* argv[])
   // File with angular diameter distance, if "none": distance is 1 [Mpc]
   std::string filename_com_distance = argv[7];
 
-  std::cerr<<"Finished reading CMD Line"<<std::endl;
+  //  std::cerr<<"Finished reading CMD Line"<<std::endl;
   
   // Reading in galaxies and copying to device
 
   // x,y, z vectors
   std::vector<double> x1, y1, z1, x2, y2, z2, x3, y3, z3;
-  
+      cudaEvent_t start, stop;
+  float elapsed;
 
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+    cudaEventRecord(start, 0);
   if(g3lcong::readLenses2Dev(filename_gal1, 3, 1, 2, 3, x1, y1, z1)) return 1;
   if(g3lcong::readLenses2Dev(filename_gal2, 3, 1, 2, 3, x2, y2, z2)) return 1;
   if(g3lcong::readLenses2Dev(filename_gal3, 3, 1, 2, 3, x3, y3, z3)) return 1;
@@ -51,7 +55,8 @@ int main(int argc, char* argv[])
   N1=x1.size(); //Number of galaxies
   N2=x2.size(); 
   N3=x3.size();
-  
+
+
   // Allocate memory on device
   cudaError_t err1 = cudaMalloc(&dev_x1, N1*sizeof(double));
   cudaError_t err2 = cudaMalloc(&dev_y1, N1*sizeof(double));
@@ -118,7 +123,7 @@ int main(int argc, char* argv[])
   cudaMemcpy(dev_com_distance, com_distance.data(), num_bins*sizeof(double), cudaMemcpyHostToDevice);
 
 
-  std::cerr<<"Finished Copying to Device"<<std::endl;
+  //  std::cerr<<"Finished Copying to Device"<<std::endl;
   
   // Calculate Triplecount
 
@@ -138,11 +143,17 @@ int main(int argc, char* argv[])
 
   double r_binwidth=log(r_max/r_min)/num_bins;
   double z_binwidth=(z_max-z_min)/num_bins;
-  std::cerr<<"Started Calculating Triplecount"<<std::endl;
-  
-  g3lcong::addToTriplecount<<<BLOCKS, THREADS>>>(dev_x1, dev_y1, dev_z1, dev_x2, dev_y2, dev_z2, dev_x3, dev_y3, dev_z3, N1, N2, N3, num_bins, r_min, r_binwidth,  dev_com_distance, z_min, z_binwidth, dev_triplecount); 
+  //  std::cerr<<"Started Calculating Triplecount"<<std::endl;
 
-  std::cerr<<"Finished calculating Triplecount"<<std::endl;
+
+
+  g3lcong::addToTriplecount<<<BLOCKS, THREADS>>>(dev_x1, dev_y1, dev_z1, dev_x2, dev_y2, dev_z2, dev_x3, dev_y3, dev_z3, N1, N2, N3, num_bins, r_min, r_binwidth,  dev_com_distance, z_min, z_binwidth, dev_triplecount);
+  cudaEventRecord(stop, 0);
+  cudaEventSynchronize (stop);
+
+
+
+  //  std::cerr<<"Finished calculating Triplecount"<<std::endl;
  // Free memory on device
   cudaFree(dev_x1);
   cudaFree(dev_y1);
@@ -155,23 +166,25 @@ int main(int argc, char* argv[])
   cudaFree(dev_z3);
   cudaFree(dev_com_distance);
   
-  // Declare arry for Triplecount on host
-  int* triplecount;
+  // Declare array for Triplecount on host
+  int triplecount[num_bins*num_bins*num_bins*num_bins*num_bins];
 
-  // Allocate memory for Triplecount on host
-  triplecount = (int*) malloc(num_bins*num_bins*num_bins*num_bins*num_bins*sizeof(int));
 
   //Copy Triplecount from device to host
-  cudaMemcpy(triplecount, dev_triplecount, num_bins*num_bins*num_bins*num_bins*num_bins*sizeof(int),
+  err1=cudaMemcpy(triplecount, dev_triplecount, num_bins*num_bins*num_bins*num_bins*num_bins*sizeof(int),
 	     cudaMemcpyDeviceToHost);
 
+  if(err1!=cudaSuccess)
+    {
+      std::cerr<<"Could not copy result from gpu to host"<<std::endl;
+    };
 
   cudaFree(dev_triplecount);
 
-  std::cerr<<"Started output"<<std::endl;
+  //  std::cerr<<"Started output"<<std::endl;
 
   // Output
-  for(int i=0; i<num_bins; i++)
+  /*  for(int i=0; i<num_bins; i++)
     {
       double r12=exp(log(r_min)+i*r_binwidth);
       for(int j=0; j<num_bins; j++)
@@ -202,7 +215,13 @@ int main(int argc, char* argv[])
 		};
 	    };
 	};
-    };
-  std::cerr<<"Finished output"<<std::endl;
+	};*/
+  //  std::cerr<<"Finished output"<<std::endl;
+  cudaEventElapsedTime(&elapsed, start, stop);
+
+  cudaEventDestroy(start);
+  cudaEventDestroy(stop);
+
+  std::cerr<<"The elapsed time on gpu was "<<elapsed<<" ms"<<std::endl;
   return 0;
 }

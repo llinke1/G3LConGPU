@@ -22,7 +22,7 @@ data = data[data['Z']>0]
 # Singh+2015 - WMAP9 Cosmology
 cosmo = ccl.Cosmology(Omega_c = 0.236, Omega_b = 0.046, h = 0.7, sigma8 = 0.817, n_s = 0.9646)
 
-data['DA'] = cosmo.angular_diameter_distance(1/(1+data['Z']))*cosmo['h'] # in Mpc/h
+data['DA'] = ccl.angular_diameter_distance(cosmo, 1/(1+data['Z']))*cosmo['h'] # in Mpc/h
 
 
 z_mask = (data['Z']>0.16) &(data['Z']<0.36)

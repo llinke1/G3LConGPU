@@ -154,6 +154,7 @@ __global__ void g3lcong::addToGtildeSourceRedshift(double* x1, double* y1, doubl
 		double eps1=e1[k];
 		double eps2=e2[k];
 		double w_galS=w[k];
+		double z_galS=zS[k];
 		
 		//Go through all lens1 galaxies in submatrix
 		for(int i=0; i<N1; i++)
@@ -162,13 +163,16 @@ __global__ void g3lcong::addToGtildeSourceRedshift(double* x1, double* y1, doubl
 		//Get positions of lens 1 in arcmin
 		double x_gal1=x1[i];
 		double y_gal1=y1[i];
+		double z_gal1=z1[i];
 		
 		double dx1=x_galS-x_gal1;//x-distance betw lens1 & source [arcmin]
 		double dy1=y_galS-y_gal1;//y-distance betw lens1 & source [arcmin]
-		
+		double dz1=z_galS-z_gal1;
+
 		double theta1=sqrt(dx1*dx1+dy1*dy1); //theta 1 [arcmin]
 
-		if(theta1 > theta_max) continue;
+		if(theta1 > 2*theta_max) continue;
+		if(dz1*dz1> sigma2) continue;
 
 		// Go through all lens2 galaxies in submatrix
 		for(int j=0; j<N2; j++)
@@ -176,13 +180,16 @@ __global__ void g3lcong::addToGtildeSourceRedshift(double* x1, double* y1, doubl
 			//Get positions of lens 2 in arcmin
 			double x_gal2=x2[j];
 			double y_gal2=y2[j];
+			double z_gal2=z2[j];
 			
 			double dx2=x_galS-x_gal2; //x-distance betw lens2 & source [arcmin]
 			double dy2=y_galS-y_gal2; //y-distance betw lens2 & source [arcmin]
+			double dz2=z_galS-z_gal2;
 
 			double theta2=sqrt(dx2*dx2+dy2*dy2); //theta 2 [arcmin]
 			
-			if(theta2 > theta_max) continue;
+			if(theta2 > 2*theta_max) continue;
+			if(dz2*dz2>sigma2) continue;
 
 
 			//Get phi
@@ -229,16 +236,16 @@ __global__ void g3lcong::addToGtildeSourceRedshift(double* x1, double* y1, doubl
 
 			//Get redshift weighting
 			double weightZ=1;
-			if(sigma2>0)
-				{
-				double dz=z1[i]-z2[j]; //redshift distance between lenses
-				weightZ = exp(-0.5*dz*dz/sigma2);
-				dz=z1[i]-zS[k];
-				weightZ *= exp(-0.5*dz*dz/sigma2);
-				dz=z2[j]-zS[k];
-				weightZ *= exp(-0.5*dz*dz/sigma2);
+			// if(sigma2>0)
+			// 	{
+			// 	double dz=z1[i]-z2[j]; //redshift distance between lenses
+			// 	weightZ = exp(-0.5*dz*dz/sigma2);
+			// 	dz=z1[i]-zS[k];
+			// 	weightZ *= exp(-0.5*dz*dz/sigma2);
+			// 	dz=z2[j]-zS[k];
+			// 	weightZ *= exp(-0.5*dz*dz/sigma2);
 				
-				};
+			// 	};
 			
 			//Get Phase Angle (Phi_i+Phi_j)
 			

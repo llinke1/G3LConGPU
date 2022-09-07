@@ -29,14 +29,16 @@ MAX_JOBS=$7
 
 DO_JACKKNIFING=$8
 
-if [ "$IS_PHYS" -gt 0 ]
-then
-    GTILDE=gtilde_phys
-    N2MAP=N2Map_phys
-else
+TILES=$9
+
+#if [ "$IS_PHYS" -gt 0 ]
+#then
+#    GTILDE=gtilde_phys
+#    N2MAP=N2Map_phys
+#else
     GTILDE=gtilde
     N2MAP=N2Map
-fi
+#fi
 
 ###############################################################################
 
@@ -49,14 +51,14 @@ function tesselation
 
     
     # Find all filled Bins and write to temporary file
-    awk '{ if($9 > 0) print NR, $1, $2, $3}' $DIR_PRODUCTS/gtilde/$1.$GTILDE.dat > $DIR_PRODUCTS/gtilde/$GTILDE.filledBins_$1
+    awk '($9+0) > 0 {print NR, $1, $2, $3}' $DIR_PRODUCTS/gtilde/$1.$GTILDE.dat > $DIR_PRODUCTS/gtilde/$GTILDE.filledBins_$1
 
     if [ "$IS_PHYS" -gt 0 ]
     then
 	voro++ 0.02 30 0.02 30 0 6.2832 $DIR_PRODUCTS/gtilde/gtilde_phys.filledBins_$1
     else
 	# Do tesselation and write volumes to temporary file.vol
-	voro++ 0.15 79.9 0.15 79.9 0 6.2832 $DIR_PRODUCTS/gtilde/gtilde.filledBins_$1
+	voro++ 0.05 79.9 0.05 79.9 0 6.2832 $DIR_PRODUCTS/gtilde/gtilde.filledBins_$1
     fi
 
     
@@ -67,99 +69,110 @@ function tesselation
 
      join -1 1 -2 1 <(sort -k1b,1 -n $DIR_PRODUCTS/gtilde/$1_numbered.$GTILDE.dat) <(sort -k1b,1 -n $DIR_PRODUCTS/gtilde/$GTILDE.filledBins_$1.vol)|  awk '{print $2, $3, $4, $14, $8, $9, $10}' > $DIR_PRODUCTS/gtilde/$1.$GTILDE.tesselated.dat
 
-     rm $DIR_PRODUCTS/gtilde/$GTILDE.filledBins_$1
-     rm $DIR_PRODUCTS/gtilde/$GTILDE.filledBins_$1.vol
-     rm $DIR_PRODUCTS/gtilde/$1_numbered.$GTILDE.dat
+     #rm $DIR_PRODUCTS/gtilde/$GTILDE.filledBins_$1
+     #rm $DIR_PRODUCTS/gtilde/$GTILDE.filledBins_$1.vol
+     #rm $DIR_PRODUCTS/gtilde/$1_numbered.$GTILDE.dat
 
 }
 
+mkdir -p $DIR_PRODUCTS/NNMap
 
 ###############################################################################
 
 echo ">Aperture Statistics w/o tesselation | $(date)"
-$DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/all.$GTILDE.dat $FILE_THETAS 0 > $DIR_PRODUCTS/NNMap/all.$N2MAP.dat
+echo Tiles: $TILES
+echo Thetates: $FILE_THETAS
+for tile in $(awk 'NR>1 {print $1}' $TILES);
+do
+    echo Processing $tile
+    $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/$tile.gtilde_single.dat $FILE_THETAS 0 > $DIR_PRODUCTS/NNMap/$tile.$N2MAP.dat
 
-############ Do Tesselation for All Gtilde ####################################
+done
 
-echo ">Tesselation | $(date)"
-
-tesselation all
-
-################ Calculate <N2Map> for whole Sample ##########################
-
-mkdir -p $DIR_PRODUCTS/NNMap
-
+$DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/all.gtilde.dat $FILE_THETAS 0 > $DIR_PRODUCTS/NNMap/all.$N2MAP.dat
 
 
-echo ">Aperture Statistics with tesselation | $(date)"
-$DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/all.$GTILDE.tesselated.dat $FILE_THETAS 1 > $DIR_PRODUCTS/NNMap/all.$N2MAP.tesselated.dat
+# ############ Do Tesselation for All Gtilde ####################################
 
-############ Do Tesselation for Jackknife Samples #############################
+# echo ">Tesselation | $(date)"
+
+# tesselation all
+
+# ################ Calculate <N2Map> for whole Sample ##########################
+
+# mkdir -p $DIR_PRODUCTS/NNMap
 
 
-if [ $DO_JACKKNIFING -gt 0 ];
-then
+
+# echo ">Aperture Statistics with tesselation | $(date)"
+# $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/all.$GTILDE.tesselated.dat $FILE_THETAS 1 > $DIR_PRODUCTS/NNMap/all.$N2MAP.tesselated.dat
+
+# ############ Do Tesselation for Jackknife Samples #############################
+
+
+# if [ $DO_JACKKNIFING -gt 0 ];
+# then
     
-    echo ">Tesselation for Jackknifing | $(date)"
+#     echo ">Tesselation for Jackknifing | $(date)"
 
-    # Iterator Variable for Jackknife Samples
-    I=1
+#     # Iterator Variable for Jackknife Samples
+#     I=1
     
-    while [ $I -lt $NUMBER_JN ]; # Go through all Jackknifes
-    do
-	# Iterator Variable for Thread Number
-	NUMBER_JOBS=0
+#     while [ $I -lt $NUMBER_JN ]; # Go through all Jackknifes
+#     do
+# 	# Iterator Variable for Thread Number
+# 	NUMBER_JOBS=0
 	
-	echo ">Started Tesselation for $I to $I+$MAX_JOBS | $(date)"
+# 	echo ">Started Tesselation for $I to $I+$MAX_JOBS | $(date)"
 	
-	while [ $NUMBER_JOBS -lt $MAX_JOBS ]; # Set Parallel Jobs
-	do
-	    tesselation jn_$I &
-	    ((NUMBER_JOBS++))
-	    ((I++))
-	    # Check if Number of Jackknife Samples is reached
-	    if [ $I -ge $NUMBER_JN ];
-	    then break
-	    fi
-	done
-	wait # Wait for Jobs to finish
-    done
+# 	while [ $NUMBER_JOBS -lt $MAX_JOBS ]; # Set Parallel Jobs
+# 	do
+# 	    tesselation jn_$I &
+# 	    ((NUMBER_JOBS++))
+# 	    ((I++))
+# 	    # Check if Number of Jackknife Samples is reached
+# 	    if [ $I -ge $NUMBER_JN ];
+# 	    then break
+# 	    fi
+# 	done
+# 	wait # Wait for Jobs to finish
+#     done
     
-    ############### Calculate <N2Map> for each Jackknife Sample ##################
+#     ############### Calculate <N2Map> for each Jackknife Sample ##################
 
-    echo ">Calculating Jackknifing | $(date)"
+#     echo ">Calculating Jackknifing | $(date)"
     
-    # Iterator Variable for Jackknife Samples
-    J=1
+#     # Iterator Variable for Jackknife Samples
+#     J=1
     
-    while [ $J -lt $NUMBER_JN ]; # Go through all Jackknifes
-    do
-	# Iterator Variable for Thread Number
-	NUMBER_JOBS=0
+#     while [ $J -lt $NUMBER_JN ]; # Go through all Jackknifes
+#     do
+# 	# Iterator Variable for Thread Number
+# 	NUMBER_JOBS=0
 	
-	echo ">Jackknifing for $J to $J+$MAX_JOBS | $(date)"
+# 	echo ">Jackknifing for $J to $J+$MAX_JOBS | $(date)"
 	
-	while [ $NUMBER_JOBS -lt $MAX_JOBS ]; # Set Parallel Jobs
-	do
-	    $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/jn_$J.$GTILDE.tesselated.dat $FILE_THETAS > $DIR_PRODUCTS/NNMap/jn_$J.$N2MAP.tesselated.dat &
-	    ((NUMBER_JOBS++))
-	    ((J++))
-	    # Check if Number of Jackknife Samples is reached
-	if [ $J -ge $NUMBER_JN ];
-	then break
-	fi
-	done
-	wait # Wait for Jobs to finish
-    done
+# 	while [ $NUMBER_JOBS -lt $MAX_JOBS ]; # Set Parallel Jobs
+# 	do
+# 	    $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/jn_$J.$GTILDE.tesselated.dat $FILE_THETAS > $DIR_PRODUCTS/NNMap/jn_$J.$N2MAP.tesselated.dat &
+# 	    ((NUMBER_JOBS++))
+# 	    ((J++))
+# 	    # Check if Number of Jackknife Samples is reached
+# 	if [ $J -ge $NUMBER_JN ];
+# 	then break
+# 	fi
+# 	done
+# 	wait # Wait for Jobs to finish
+#     done
     
-############### Calculate Variance from Jackknife Samples #####################
+# ############### Calculate Variance from Jackknife Samples #####################
     
-    echo ">Calculating Variance | $(date)"
+#     echo ">Calculating Variance | $(date)"
     
-    python $DIR_PYTHON/calculateCovarianceNNMap.py $DIR_PRODUCTS/NNMap/all.e_mode_covariance_tesselated.dat $DIR_PRODUCTS/NNMap/all.e_mode_stddev_tesselated.dat $DIR_PRODUCTS/NNMap/jn*.$N2MAP.tesselated.dat
+#     python $DIR_PYTHON/calculateCovarianceNNMap.py $DIR_PRODUCTS/NNMap/all.e_mode_covariance_tesselated.dat $DIR_PRODUCTS/NNMap/all.e_mode_stddev_tesselated.dat $DIR_PRODUCTS/NNMap/jn*.$N2MAP.tesselated.dat
 
-    python $DIR_PYTHON/calculateCovarianceNNMperp.py $DIR_PRODUCTS/NNMap/all.b_mode_covariance_tesselated.dat $DIR_PRODUCTS/NNMap/all.b_mode_stddev_tesselated.dat $DIR_PRODUCTS/NNMap/jn*.$N2MAP.tesselated.dat
+#     python $DIR_PYTHON/calculateCovarianceNNMperp.py $DIR_PRODUCTS/NNMap/all.b_mode_covariance_tesselated.dat $DIR_PRODUCTS/NNMap/all.b_mode_stddev_tesselated.dat $DIR_PRODUCTS/NNMap/jn*.$N2MAP.tesselated.dat
     
-    paste -d " " <(awk '{print $0}' $DIR_PRODUCTS/NNMap/all.N2Map_tesselated.dat ) <(awk '{print $2}' $DIR_PRODUCTS/NNMap/all.e_mode_stddev_tesselated.dat ) <(awk '{print $2}' $DIR_PRODUCTS/NNMap/all.b_mode_stddev_tesselated.dat ) >  $DIR_PRODUCTS/NNMap/all.$N2MAP.tesselated_variance.dat
+#     paste -d " " <(awk '{print $0}' $DIR_PRODUCTS/NNMap/all.N2Map_tesselated.dat ) <(awk '{print $2}' $DIR_PRODUCTS/NNMap/all.e_mode_stddev_tesselated.dat ) <(awk '{print $2}' $DIR_PRODUCTS/NNMap/all.b_mode_stddev_tesselated.dat ) >  $DIR_PRODUCTS/NNMap/all.$N2MAP.tesselated_variance.dat
     
-fi
+# fi

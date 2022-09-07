@@ -32,7 +32,7 @@ DIR_PYTHON="../python"
 DIR_SCRIPTS="../scripts/"
 
 # ASCII file with tile names
-TILES=MR_small.tsb
+TILES=tilenames
 
 # ASCII file with thetas for which NNMap shall be calculated [arcmin]
 FILE_THETAS=thetas_intermed.dat
@@ -58,7 +58,7 @@ NAME_MOCKS=mocks
 NAME_SOURCES=sources
 
 # Number of Jackknifes to be calculated
-NUMBER_JN=129 # Match this to number of tiles
+NUMBER_JN=25 #129 # Match this to number of tiles
 
 # Maximal number of parallel threads
 MAX_JOBS=12 # Match this to number of cores
@@ -92,25 +92,25 @@ mkdir -p $DIR_PRODUCTS
 
 ################ Calculate Omega ###############################################
 
-# Calculate Omega
-echo "Calculate Omega"
-bash $DIR_SCRIPTS/calculateOmega.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_AUTO $TILES $NUMBER_JN $SIGMA $NAME_OBJECTS $NAME_MOCKS $GPU $DIR_DATA1 $DIR_DATA2 $NBINS
+# # Calculate Omega
+# echo "Calculate Omega"
+# bash $DIR_SCRIPTS/calculateOmega.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_AUTO $TILES $NUMBER_JN $SIGMA $NAME_OBJECTS $NAME_MOCKS $GPU $DIR_DATA1 $DIR_DATA2 $NBINS
 
-################ Calculate Sigma Crit ##########################################
+# ################ Calculate Sigma Crit ##########################################
 
-echo "Calculate SigmaCrit"
-python $DIR_PYTHON/calculateSigmaCrit.py $H_0 $OMEGA_M $FILE_NZ $Z_MIN $Z_MAX $NBINS $FILE_SIGMACRIT
+# echo "Calculate SigmaCrit"
+# python $DIR_PYTHON/calculateSigmaCrit.py $H_0 $OMEGA_M $FILE_NZ $Z_MIN $Z_MAX $NBINS $FILE_SIGMACRIT
 
-################ Calculate D_A #################################################
+# ################ Calculate D_A #################################################
 
-echo "Calculate D_A"
-python $DIR_PYTHON/calculateDA.py $H_0 $OMEGA_M $Z_MIN $Z_MAX $NBINS $FILE_ANGULAR_DIST
+# echo "Calculate D_A"
+# python $DIR_PYTHON/calculateDA.py $H_0 $OMEGA_M $Z_MIN $Z_MAX $NBINS $FILE_ANGULAR_DIST
 
 ################ Calculate Gtilde (angular) ####################################
 
 IS_PHYS=0
 
- Calculate Gtilde
+#  Calculate Gtilde
 bash $DIR_SCRIPTS/calculateGtilde.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_AUTO $IS_PHYS $TILES $NUMBER_JN $SIGMA $FILE_SIGMACRIT $MAX_JOBS $NAME_OBJECTS $NAME_SOURCES $DO_JACKKNIFING $GPU $DIR_DATA1 $DIR_DATA2 $FILE_SIGMACRIT $FILE_DA
 
 ################ Calculate NNMap (angular) #####################################

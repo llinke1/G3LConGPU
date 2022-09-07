@@ -36,12 +36,12 @@ DIR_SCRIPTS="../scripts/"
 TILES=LowZ_tiles.tsb
 
 # ASCII file with thetas for which NNMap shall be calculated [arcmin]
-FILE_THETAS=thetas_intermed.dat
+FILE_THETAS=rs.dat #hetas_intermed.dat
 
 # ASCII file with Rs for which NNMap shall be calculated [Mpc]
-FILE_RS=Rs_large.dat
+FILE_RS=rs.dat #Rs_large.dat
 
-SIGMA=0
+SIGMA=0.01
 
 # ASCII file containing Sigma Crit (source averaged)
 FILE_SIGMACRIT="../LowZ/all.sigmaCrit.dat"
@@ -99,24 +99,24 @@ mkdir -p $DIR_PRODUCTS
 
 ################ Calculate Sigma Crit ##########################################
 
-echo "Calculate SigmaCrit"
-python $DIR_PYTHON/calculateSigmaCrit.py $H_0 $OMEGA_M $FILE_NZ $Z_MIN $Z_MAX $NBINS $FILE_SIGMACRIT
+#echo "Calculate SigmaCrit"
+#python $DIR_PYTHON/calculateSigmaCrit.py $H_0 $OMEGA_M $FILE_NZ $Z_MIN $Z_MAX $NBINS $FILE_SIGMACRIT
 
 ################ Calculate D_A #################################################
 
-echo "Calculate D_A"
-python $DIR_PYTHON/calculateDA.py $H_0 $OMEGA_M $Z_MIN $Z_MAX $NBINS $FILE_ANGULAR_DIST
+#echo "Calculate D_A"
+#python $DIR_PYTHON/calculateDA.py $H_0 $OMEGA_M $Z_MIN $Z_MAX $NBINS $FILE_ANGULAR_DIST
 
 ################ Calculate Gtilde (angular) ####################################
 
 IS_PHYS=0
 
 # Calculate Gtilde
-bash $DIR_SCRIPTS/calculateGtildeLowZ.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_AUTO $IS_PHYS $TILES $NUMBER_JN $SIGMA $FILE_SIGMACRIT $MAX_JOBS $NAME_OBJECTS $NAME_SOURCES $DO_JACKKNIFING $GPU $DIR_DATA1 $DIR_DATA2 $FILE_SIGMACRIT $FILE_DA
+#bash $DIR_SCRIPTS/calculateGtildeLowZ.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_AUTO $IS_PHYS $TILES $NUMBER_JN $SIGMA $FILE_SIGMACRIT $MAX_JOBS $NAME_OBJECTS $NAME_SOURCES $DO_JACKKNIFING $GPU $DIR_DATA1 $DIR_DATA2 $FILE_SIGMACRIT $FILE_DA
 
 ################ Calculate NNMap (angular) #####################################
 
-bash $DIR_SCRIPTS/calculateApertureStatistics.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_PHYS $FILE_RS $NUMBER_JN $MAX_JOBS $DO_JACKKNIFING
+bash $DIR_SCRIPTS/calculateApertureStatistics.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_PHYS $FILE_RS $NUMBER_JN $MAX_JOBS $DO_JACKKNIFING $TILES
 
 
 ################ Calculate Gtilde (physical) ###################################

@@ -72,7 +72,7 @@ THETA_MIN=0.1 #[Mpc]
 THETA_MAX=100 #[Mpc] #70000000
 
 # File with Angular Correlation Function
-FILE_OMEGA=$DIR_PRODUCTS/omega/all.omega.dat
+FILE_OMEGA= /vol/aibn238/data1/llinke/LowZ_IA/data/omega.txt  #$DIR_PRODUCTS/omega/all.omega.dat
 
 
 ##################### Calculate Gtilde for Each Tile ##########################
@@ -80,7 +80,7 @@ FILE_OMEGA=$DIR_PRODUCTS/omega/all.omega.dat
 if [ "$GPU" == 1 ];
 then
     echo "Calculate Gtilde on GPU"
-    BIN_GTILDE=$DIR_BIN/calculateGtilde_gpu.x
+    BIN_GTILDE=$DIR_BIN/calculateGtilde_gpu_IA.x
 else
     echo "Calculate Gtilde on CPU (kd-Trees)"
     BIN_GTILDE=$DIR_BIN/calculateGtilde_kdtrees.x

@@ -33,7 +33,7 @@ DIR_PYTHON="../python"
 DIR_SCRIPTS="../scripts/"
 
 # ASCII file with tile names
-TILES=MR_small.tsb
+TILES=LowZ_tiles.tsb
 
 # ASCII file with thetas for which NNMap shall be calculated [arcmin]
 FILE_THETAS=thetas_intermed.dat
@@ -50,7 +50,7 @@ FILE_SIGMACRIT="../../KV450/sigmaCrit/all.sigmaCrit.dat"
 FILE_ANGULAR_DIST="../../KV450/D_A/angular_dist.dat"
 
 # Prefix for lens galaxy files
-NAME_OBJECTS=objects
+NAME_OBJECTS=lenses
 
 # Prefix for random galaxy files
 NAME_MOCKS=mocks
@@ -59,7 +59,7 @@ NAME_MOCKS=mocks
 NAME_SOURCES=sources
 
 # Number of Jackknifes to be calculated
-NUMBER_JN=1 # Match this to number of tiles
+NUMBER_JN=2 # Match this to number of tiles
 
 # Maximal number of parallel threads
 MAX_JOBS=12 # Match this to number of cores
@@ -94,8 +94,8 @@ mkdir -p $DIR_PRODUCTS
 ################ Calculate Omega ###############################################
 
 # Calculate Omega
-echo "Calculate Omega"
-bash $DIR_SCRIPTS/calculateOmega.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_AUTO $TILES $NUMBER_JN $SIGMA $NAME_OBJECTS $NAME_MOCKS $GPU $DIR_DATA1 $DIR_DATA2 $NBINS
+#echo "Calculate Omega"
+#bash $DIR_SCRIPTS/calculateOmega.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_AUTO $TILES $NUMBER_JN $SIGMA $NAME_OBJECTS $NAME_MOCKS $GPU $DIR_DATA1 $DIR_DATA2 $NBINS
 
 ################ Calculate Sigma Crit ##########################################
 
@@ -111,7 +111,7 @@ bash $DIR_SCRIPTS/calculateOmega.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_AUTO 
 
 IS_PHYS=0
 
- Calculate Gtilde
+# Calculate Gtilde
 bash $DIR_SCRIPTS/calculateGtildeLowZ.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_AUTO $IS_PHYS $TILES $NUMBER_JN $SIGMA $FILE_SIGMACRIT $MAX_JOBS $NAME_OBJECTS $NAME_SOURCES $DO_JACKKNIFING $GPU $DIR_DATA1 $DIR_DATA2 $FILE_SIGMACRIT $FILE_DA
 
 ################ Calculate NNMap (angular) #####################################
@@ -121,7 +121,7 @@ bash $DIR_SCRIPTS/calculateApertureStatistics.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYT
 
 ################ Calculate Gtilde (physical) ###################################
 
-IS_PHYS=1
+#IS_PHYS=1
 
 # Calculate Gtilde
 #bash $DIR_SCRIPTS/calculateGtilde.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_AUTO $IS_PHYS $TILES $NUMBER_JN $SIGMA $FILE_SIGMACRIT $MAX_JOBS $NAME_OBJECTS $NAME_SOURCES $DO_JACKKNIFING $GPU $DIR_DATA1 $DIR_DATA2 $FILE_SIGMACRIT $FILE_DA

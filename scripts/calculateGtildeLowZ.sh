@@ -72,7 +72,7 @@ THETA_MIN=0.1 #[Mpc]
 THETA_MAX=100 #[Mpc] #70000000
 
 # File with Angular Correlation Function
-FILE_OMEGA= /vol/aibn238/data1/llinke/LowZ_IA/data/omega.txt  #$DIR_PRODUCTS/omega/all.omega.dat
+FILE_OMEGA="/vol/aibn238/data1/llinke/LowZ_IA/data/omega.txt"  #$DIR_PRODUCTS/omega/all.omega.dat
 
 
 ##################### Calculate Gtilde for Each Tile ##########################

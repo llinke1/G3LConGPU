@@ -71,14 +71,14 @@ int main(int argc, char* argv[])
 
  
   // x,y, z vectors
-  std::vector<double> x1, y1, z1, x2, y2, z2, xS, yS, zS, e1, e2, w;
+  std::vector<double> x1, y1, z1, x2, y2, z2, xS, yS, zS, e1, e2, w, tmp;
   
 
   if(g3lcong::readSources2Dev(filename_sources, 6, 1, 2, 3, 4, 6, xS,
 			      yS, e1, e2, w)) return 1;
   
-  if(g3lcong::readLenses2Dev(filename_sources, 6, 1, 2, 5, xS,
-			      yS, zS)) return 1;
+  if(g3lcong::readLenses2Dev(filename_sources, 6, 1, 2, 5, tmp,
+			      tmp, zS)) return 1;
 
   if(g3lcong::readLenses2Dev(filename_lenses1, 6, 1, 2, 5, x1, y1, z1)) return 1;
   if(g3lcong::readLenses2Dev(filename_lenses2, 6, 1, 2, 5, x2, y2, z2)) return 1;
@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
 
   if(err1 != cudaSuccess || err2 != cudaSuccess || err3 != cudaSuccess)
     {
-      std::cerr<<"Could not allocate memory"<<std::endl;
+      std::cerr<<"Could not allocate memory 1"<<std::endl;
       exit(1);
     };
 
@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
 
   if(err1 != cudaSuccess || err2 != cudaSuccess || err3 != cudaSuccess)
     {
-      std::cerr<<"Could not allocate memory"<<std::endl;
+      std::cerr<<"Could not allocate memory 2"<<std::endl;
       exit(1);
     };
 
@@ -122,12 +122,12 @@ int main(int argc, char* argv[])
   cudaError_t err5 = cudaMalloc(&dev_w, NS*sizeof(double));
   cudaError_t err6 = cudaMalloc(&dev_zS, NS*sizeof(double));
 
-  
+  std::cerr<<NS<<std::endl;
 
   if(err1 != cudaSuccess || err2 != cudaSuccess || err3 != cudaSuccess ||
-     err4 != cudaSuccess || err5 != cudaSuccess || err6 != cudaSuccess);
+     err4 != cudaSuccess || err5 != cudaSuccess || err6 != cudaSuccess)
     {
-      std::cerr<<"Could not allocate memory"<<std::endl;
+      std::cerr<<"Could not allocate memory 3"<<std::endl;
       exit(1);
     };
 

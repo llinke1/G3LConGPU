@@ -44,10 +44,10 @@ FILE_RS=Rs_large.dat
 SIGMA=0
 
 # ASCII file containing Sigma Crit (source averaged)
-FILE_SIGMACRIT="../../KV450/sigmaCrit/all.sigmaCrit.dat"
+FILE_SIGMACRIT="../LowZ/all.sigmaCrit.dat"
 
 # ASCII file containing angular diameter distance
-FILE_ANGULAR_DIST="../../KV450/D_A/angular_dist.dat"
+FILE_ANGULAR_DIST="../LowZ/angular_dist.dat"
 
 # Prefix for lens galaxy files
 NAME_OBJECTS=lenses
@@ -69,13 +69,13 @@ DO_JACKKNIFING=0
 GPU=1 # Switch if GPU calculation
 
 # ASCII file containing Sigma Crit (source averaged)
-FILE_SIGMACRIT="../../KV450/sigmaCrit/all.sigmaCrit.dat"
+FILE_SIGMACRIT="../LowZ/measurements/all.sigmaCrit.dat"
 
 # ASCII file containing angular diameter distance
-FILE_DA="../../KV450/D_A/angular_dist.dat"
+FILE_DA="../LowZ/measurements/angular_dist.dat"
 
 # ASCII file containing n_z
-FILE_NZ="../../KV450/n_z/KiDS_2018-07-26_deepspecz_photoz_10th_BLIND_specweight_1000_4_ZB01t12_blindB_Nz.asc"
+FILE_NZ="../LowZ/data/n_z_all.dat"
 
 # Cosmology
 H_0=73 # km/s/Mpc
@@ -99,13 +99,13 @@ mkdir -p $DIR_PRODUCTS
 
 ################ Calculate Sigma Crit ##########################################
 
-#echo "Calculate SigmaCrit"
-#python $DIR_PYTHON/calculateSigmaCrit.py $H_0 $OMEGA_M $FILE_NZ $Z_MIN $Z_MAX $NBINS $FILE_SIGMACRIT
+echo "Calculate SigmaCrit"
+python $DIR_PYTHON/calculateSigmaCrit.py $H_0 $OMEGA_M $FILE_NZ $Z_MIN $Z_MAX $NBINS $FILE_SIGMACRIT
 
 ################ Calculate D_A #################################################
 
-#echo "Calculate D_A"
-#python $DIR_PYTHON/calculateDA.py $H_0 $OMEGA_M $Z_MIN $Z_MAX $NBINS $FILE_ANGULAR_DIST
+echo "Calculate D_A"
+python $DIR_PYTHON/calculateDA.py $H_0 $OMEGA_M $Z_MIN $Z_MAX $NBINS $FILE_ANGULAR_DIST
 
 ################ Calculate Gtilde (angular) ####################################
 

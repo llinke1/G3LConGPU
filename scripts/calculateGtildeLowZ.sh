@@ -70,6 +70,8 @@ FILE_DA=${18}
 NBINS=50
 THETA_MIN=0.1 #[Mpc]
 THETA_MAX=100 #[Mpc] #70000000
+R_MIN=0.1
+R_MAX=100
 
 # File with Angular Correlation Function
 FILE_OMEGA="/vol/aibn238/data1/llinke/LowZ_IA/data/omega.txt"  #$DIR_PRODUCTS/omega/all.omega.dat

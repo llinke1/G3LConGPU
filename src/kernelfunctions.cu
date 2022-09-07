@@ -129,6 +129,140 @@ __global__ void g3lcong::addToGtilde(double* x1, double* y1, double* x2, double*
 }
 
 
+__global__ void g3lcong::addToGtildeSourceRedshift(double* x1, double* y1, double* x2, double* y2,
+				     double* xS, double* yS, double* z1, double* z2, double* zS,
+				     double* e1, double* e2,
+				     double *w, double *omega, double sigma2,
+				     double omega_theta_min,
+				     double omega_theta_max,
+				     int num_bins, int N1, int N2, int NS,
+				     double theta_min, double theta_max,
+				     double *Greal, double *Gimag,
+				     double *weight)
+{
+  // global ID of this thread
+  int thread_index = blockIdx.x * blockDim.x + threadIdx.x;
+  
+  // Binwidth of omega
+  double om_binwidth=log(omega_theta_max/omega_theta_min)/num_bins;
+  double theta_binwidth=log(theta_max/theta_min)/num_bins;
+  for(int k=thread_index; k<NS; k+=blockDim.x*gridDim.x) 
+    {
+      //Get source positions in arcmin
+      double x_galS=xS[k];
+      double y_galS=yS[k];
+      double eps1=e1[k];
+      double eps2=e2[k];
+      double w_galS=w[k];
+      
+      //Go through all lens1 galaxies in submatrix
+      for(int i=0; i<N1; i++)
+	{
+
+	  //Get positions of lens 1 in arcmin
+	  double x_gal1=x1[i];
+	  double y_gal1=y1[i];
+	  
+	  double dx1=x_galS-x_gal1;//x-distance betw lens1 & source [arcmin]
+	  double dy1=y_galS-y_gal1;//y-distance betw lens1 & source [arcmin]
+	  
+	  double theta1=sqrt(dx1*dx1+dy1*dy1); //theta 1 [arcmin]
+
+	  // Go through all lens2 galaxies in submatrix
+	  for(int j=0; j<N2; j++)
+	    {
+	      //Get positions of lens 2 in arcmin
+	      double x_gal2=x2[j];
+	      double y_gal2=y2[j];
+		  
+	      double dx2=x_galS-x_gal2; //x-distance betw lens2 & source [arcmin]
+	      double dy2=y_galS-y_gal2; //y-distance betw lens2 & source [arcmin]
+
+	      double theta2=sqrt(dx2*dx2+dy2*dy2); //theta 2 [arcmin]
+	      
+	      //Get phi
+	      double phi;
+
+	      //dot = \vec{theta1}\dot\vec{theta2} = theta1*theta2*cos(phi)
+	      double dot=dx1*dx2+dy1*dy2;
+	      //det = \vec{theta1}\cross\vec{theta2} = theta1*theta2*sin(phi)
+	      double det=dx1*dy2-dx2*dy1;
+     
+	      //atan2(x,y) returns angle alpha for which x=sin(alpha) and
+	      //y=cos(alpha)
+	      phi=atan2(det, dot);
+
+	      //atan2 returns angle in [-pi, pi], we want [0,2pi]
+	      if(phi<0) phi+=2*g3lcong::pi;
+
+	       //Get index for Gtilde in logarithmic binning
+	      int indexX=0;
+
+	      if(theta1>theta_min) indexX=floor(log(theta1/theta_min)/theta_binwidth);
+	     	      
+	      int indexY=0;
+	      if(theta2>theta_min) indexY=floor(log(theta2/theta_min)/theta_binwidth);     
+	    
+	      unsigned int index= indexX*num_bins*num_bins + indexY*num_bins
+		+ floor(0.5*phi*num_bins/g3lcong::pi);
+	
+	      
+	      if(indexX<num_bins && indexY<num_bins && index<num_bins*num_bins*num_bins)
+		{
+		  //Get Omega
+		  double dx=x_gal1-x_gal2; //x-distance between lenses [arcmin]
+		  double dy=y_gal1-y_gal2; //y-distance between lenses [arcmin]
+		  
+		  double r2=(dx*dx+dy*dy); //Squared distance between lenses [arcmin^2]
+		  
+		  int index_omega=0; //Index for omega
+	
+		  if(r2>omega_theta_min*omega_theta_min) index_omega=int((0.5*log(r2/omega_theta_min/omega_theta_min))/om_binwidth);
+		  
+		  double omega_triplet=0; //omega for this lens pair
+		  if(index_omega<num_bins) omega_triplet=omega[index_omega];
+
+		  //Get redshift weighting
+		  double weightZ=1;
+		  if(sigma2>0)
+		    {
+		      double dz=z1[i]-z2[j]; //redshift distance between lenses
+		      weightZ = exp(-0.5*dz*dz/sigma2);
+			  dz=z1[i]-zS[k];
+		      weightZ *= exp(-0.5*dz*dz/sigma2);
+			  dz=z2[j]-zS[k];
+		      weightZ *= exp(-0.5*dz*dz/sigma2);
+			
+		    };
+	      
+		  //Get Phase Angle (Phi_i+Phi_j)
+	      
+		  double phi1=atan2(dy1, dx1); //phase angle of theta1
+		  double phi2=atan2(dy2, dx2); //phase angle of theta2
+	      
+		  double cos_phase, sin_phase;
+		  sincos(phi1+phi2, &sin_phase, &cos_phase);
+	      
+		  //Get Contribution of Triplet (multiplied by 0.01 to avoid overflow)
+		  double Greal_triplet=(1+omega_triplet)
+		    *(-eps1*cos_phase-eps2*sin_phase)*w_galS*weightZ*0.01; 
+		  double Gimag_triplet=(1+omega_triplet)
+		    *(eps1*sin_phase-eps2*cos_phase)*w_galS*weightZ*0.01;
+		  
+
+		  // Add Triplet contribution
+		  atomicAdd(&Greal[index], Greal_triplet);
+		  atomicAdd(&Gimag[index], Gimag_triplet);
+		  atomicAdd(&weight[index],w_galS*0.01*weightZ);
+		}
+	    }
+	}
+    }
+  return;
+}
+
+
+
 __global__ void g3lcong::addToGtildePhysical(double* x1, double* y1, double* x2, double* y2,
 					     double* xS, double* yS, double* z1, double* z2,
 					     double* e1, double* e2, double *w,

@@ -44,6 +44,17 @@ __global__ void addToGtilde(double* x1, double* y1, double* x2, double* y2,
 			    double *Greal, double *Gimag,
 			    double *weight);
 
+__global__ void addToGtildeSourceRedshift(double* x1, double* y1, double* x2, double* y2,
+				     double* xS, double* yS, double* z1, double* z2, double* zS,
+				     double* e1, double* e2,
+				     double *w, double *omega, double sigma2,
+				     double omega_theta_min,
+				     double omega_theta_max,
+				     int num_bins, int N1, int N2, int NS,
+				     double theta_min, double theta_max,
+				     double *Greal, double *Gimag,
+				     double *weight)
+
 /**
  * Kernel function, which updates Gtilde in physical units w/o z weighting
  * Function is executed for each thread and updates Gtilde and weight 

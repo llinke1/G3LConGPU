@@ -11,9 +11,9 @@ pd.options.display.max_columns = 500
 
 
 
-filename=
-outputfilename_shapes=
-outputfilename_lenses=
+filename="/vol/aibn238/data1/llinke/LowZ_IA/data/lowz12_v5_short.fits"
+outputfilename_shapes="/vol/aibn238/data1/llinke/LowZ_IA/data/shapes"
+outputfilename_lenses="/vol/aibn238/data1/llinke/LowZ_IA/data/lenses"
 
 data = Table.read(filename, format='fits').to_pandas()
 

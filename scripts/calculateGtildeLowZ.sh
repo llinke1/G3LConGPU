@@ -74,7 +74,7 @@ R_MIN=0.1
 R_MAX=100
 
 # File with Angular Correlation Function
-FILE_OMEGA="/vol/aibn238/data1/llinke/LowZ_IA/data/omega.txt"  #$DIR_PRODUCTS/omega/all.omega.dat
+FILE_OMEGA="../LowZ/data/omega.txt"  #$DIR_PRODUCTS/omega/all.omega.dat
 
 
 ##################### Calculate Gtilde for Each Tile ##########################

@@ -67,9 +67,9 @@ FILE_DA=${18}
 # Binning for Gtilde
 #THETA_MIN=0.15
 #THETA_MAX=79.9 #199.75 #319.6 (MR) #79.9 (small tiles)
-NBINS=128
-THETA_MIN=0.02 #[Mpc]
-THETA_MAX=40 #[Mpc] #70000000
+NBINS=50
+THETA_MIN=0.1 #[Mpc]
+THETA_MAX=100 #[Mpc] #70000000
 
 # File with Angular Correlation Function
 FILE_OMEGA=$DIR_PRODUCTS/omega/all.omega.dat

@@ -53,7 +53,7 @@ __global__ void addToGtildeSourceRedshift(double* x1, double* y1, double* x2, do
 				     int num_bins, int N1, int N2, int NS,
 				     double theta_min, double theta_max,
 				     double *Greal, double *Gimag,
-				     double *weight)
+				     double *weight);
 
 /**
  * Kernel function, which updates Gtilde in physical units w/o z weighting

@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 
  
   // x,y, z vectors
-  std::vector<double> x1, y1, z1, x2, y2, z2, xS, yS, zs, e1, e2, w;
+  std::vector<double> x1, y1, z1, x2, y2, z2, xS, yS, zS, e1, e2, w;
   
 
   if(g3lcong::readSources2Dev(filename_sources, 6, 1, 2, 3, 4, 6, xS,

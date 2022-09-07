@@ -10,7 +10,7 @@ DIR_PRODUCTS="/vol/aibn238/data1/llinke/LowZ_IA/measurements/"
 #"../../products_MR_m1m1_small_noZ/"
 
 # Folder containing first lens and source files
-DIR_DATA1="/vol/aibn238/data1/llinke/LowZ_IA/data/"#"../../MR/smallTiles_mass1/"
+DIR_DATA1="/vol/aibn238/data1/llinke/LowZ_IA/data/" #"../../MR/smallTiles_mass1/"
 
 # Folder containing second lens files
 DIR_DATA2="/vol/aibn238/data1/llinke/LowZ_IA/data/" #"../../MR/smallTiles_mass1/"

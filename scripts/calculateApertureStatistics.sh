@@ -53,13 +53,16 @@ function tesselation
     # Find all filled Bins and write to temporary file
     awk '($9+0) > 0 {print NR, $1, $2, $3}' $DIR_PRODUCTS/gtilde/$1.$GTILDE.dat > $DIR_PRODUCTS/gtilde/$GTILDE.filledBins_$1
 
-    if [ "$IS_PHYS" -gt 0 ]
-    then
-	voro++ 0.02 30 0.02 30 0 6.2832 $DIR_PRODUCTS/gtilde/gtilde_phys.filledBins_$1
-    else
+	voro++ 0.1 100 0.1 100 0 6.2832 $DIR_PRODUCTS/gtilde/gtilde.filledBins_$1
+
+
+#    if [ "$IS_PHYS" -gt 0 ]
+#    then
+#	voro++ 0.02 30 0.02 30 0 6.2832 $DIR_PRODUCTS/gtilde/gtilde_phys.filledBins_$1
+#    else
 	# Do tesselation and write volumes to temporary file.vol
-	voro++ 0.05 79.9 0.05 79.9 0 6.2832 $DIR_PRODUCTS/gtilde/gtilde.filledBins_$1
-    fi
+#	voro++ 0.05 79.9 0.05 79.9 0 6.2832 $DIR_PRODUCTS/gtilde/gtilde.filledBins_$1
+#    fi
 
     
 
@@ -94,9 +97,9 @@ $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/all.gtilde.dat $FILE
 
 # ############ Do Tesselation for All Gtilde ####################################
 
-# echo ">Tesselation | $(date)"
+echo ">Tesselation | $(date)"
 
-# tesselation all
+tesselation all
 
 # ################ Calculate <N2Map> for whole Sample ##########################
 
@@ -104,8 +107,8 @@ $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/all.gtilde.dat $FILE
 
 
 
-# echo ">Aperture Statistics with tesselation | $(date)"
-# $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/all.$GTILDE.tesselated.dat $FILE_THETAS 1 > $DIR_PRODUCTS/NNMap/all.$N2MAP.tesselated.dat
+echo ">Aperture Statistics with tesselation | $(date)"
+$DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/all.$GTILDE.tesselated.dat $FILE_THETAS 1 > $DIR_PRODUCTS/NNMap/all.$N2MAP.tesselated.dat
 
 # ############ Do Tesselation for Jackknife Samples #############################
 

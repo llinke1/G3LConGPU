@@ -3,19 +3,19 @@
 #
 # @author Laila Linke, llinke@astro.uni-bonn.de
 #############################################################################
-
-
+#
+#
 # Folder to which output shall be written
 DIR_PRODUCTS="../LowZ/measurements/"
 #"../../products_MR_m1m1_small_noZ/"
-
+#
 # Folder containing first lens and source files
 DIR_DATA1="../LowZ/data/" #"../../MR/smallTiles_mass1/"
-
+#
 # Folder containing second lens files
 DIR_DATA2="../LowZ/data/" #"../../MR/smallTiles_mass1/"
-
-
+#
+#
 if [ $DIR_DATA1 == $DIR_DATA2 ]
 then
     IS_AUTO=1
@@ -36,7 +36,7 @@ DIR_SCRIPTS="../scripts/"
 TILES=LowZ_tiles.tsb
 
 # ASCII file with thetas for which NNMap shall be calculated [arcmin]
-FILE_THETAS=rs.dat #hetas_intermed.dat
+FILE_THETAS=rs_unequalScaleRadii.dat #rs.dat #hetas_intermed.dat
 
 # ASCII file with Rs for which NNMap shall be calculated [Mpc]
 FILE_RS=rs.dat #Rs_large.dat
@@ -117,18 +117,18 @@ IS_PHYS=0
 ################ Calculate NNMap (angular) #####################################
 
 bash $DIR_SCRIPTS/calculateApertureStatistics.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_PHYS $FILE_RS $NUMBER_JN $MAX_JOBS $DO_JACKKNIFING $TILES
-
-
+#
+#
 ################ Calculate Gtilde (physical) ###################################
-
+#
 #IS_PHYS=1
-
+#
 # Calculate Gtilde
 #bash $DIR_SCRIPTS/calculateGtilde.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_AUTO $IS_PHYS $TILES $NUMBER_JN $SIGMA $FILE_SIGMACRIT $MAX_JOBS $NAME_OBJECTS $NAME_SOURCES $DO_JACKKNIFING $GPU $DIR_DATA1 $DIR_DATA2 $FILE_SIGMACRIT $FILE_DA
-
+#
 ################ Calculate NNMap (physical) ####################################
-
+#
 #bash $DIR_SCRIPTS/calculateApertureStatistics.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_PHYS $FILE_RS $NUMBER_JN $MAX_JOBS $DO_JACKKNIFING
-
-
+#
+#
 echo "Done"

@@ -36,8 +36,8 @@ TILES=$9
 #    GTILDE=gtilde_phys
 #    N2MAP=N2Map_phys
 #else
-    GTILDE=gtilde
-    N2MAP=N2Map
+GTILDE=gtilde
+N2MAP=N2Map_unequalScaleRadii
 #fi
 
 ###############################################################################

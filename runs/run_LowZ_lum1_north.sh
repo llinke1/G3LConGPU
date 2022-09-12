@@ -36,7 +36,7 @@ DIR_SCRIPTS="../scripts/"
 TILES=LowZ_tiles.tsb
 
 # ASCII file with thetas for which NNMap shall be calculated [arcmin]
-FILE_THETAS=rs_unequalScaleRadii.dat #rs.dat #hetas_intermed.dat
+FILE_THETAS=rs.dat #rs.dat #hetas_intermed.dat
 
 # ASCII file with Rs for which NNMap shall be calculated [Mpc]
 FILE_RS=rs.dat #Rs_large.dat
@@ -109,7 +109,7 @@ FILE_OMEGA=$DIR_DATA1/omega.txt
 IS_PHYS=0
 
 # Calculate Gtilde
-bash $DIR_SCRIPTS/calculateGtildeLowZ.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_AUTO $IS_PHYS $TILES $NUMBER_JN $SIGMA $FILE_SIGMACRIT $MAX_JOBS $NAME_OBJECTS $NAME_SOURCES $DO_JACKKNIFING $GPU $DIR_DATA1 $DIR_DATA2 $FILE_SIGMACRIT $FILE_DA $FILE_OMEGA
+#bash $DIR_SCRIPTS/calculateGtildeLowZ.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_AUTO $IS_PHYS $TILES $NUMBER_JN $SIGMA $FILE_SIGMACRIT $MAX_JOBS $NAME_OBJECTS $NAME_SOURCES $DO_JACKKNIFING $GPU $DIR_DATA1 $DIR_DATA2 $FILE_SIGMACRIT $FILE_DA $FILE_OMEGA
 
 ################ Calculate NNMap (angular) #####################################
 

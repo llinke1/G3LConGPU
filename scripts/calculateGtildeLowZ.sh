@@ -74,7 +74,7 @@ R_MIN=0.1
 R_MAX=100
 
 # File with Angular Correlation Function
-FILE_OMEGA="../LowZ/data/omega.txt"  #$DIR_PRODUCTS/omega/all.omega.dat
+FILE_OMEGA=${19}  #$DIR_PRODUCTS/omega/all.omega.dat
 
 
 ##################### Calculate Gtilde for Each Tile ##########################
@@ -115,7 +115,7 @@ if [ "$IS_PHYS" -gt 0 ]
 then
     python $DIR_PYTHON/combineGtilde.py 0 $NTILES $DIR_PRODUCTS/gtilde/all.gtilde_phys.dat $DIR_PRODUCTS/gtilde/*.gtilde_phys_single.dat 
 else
-  python $DIR_PYTHON/combineGtilde.py 0 $NTILES $DIR_PRODUCTS/gtilde/all.gtilde.dat $DIR_PRODUCTS/gtilde/*.gtilde_single.dat
+  python $DIR_PYTHON/combineGtilde.py 0 $NTILES $DIR_PRODUCTS/gtilde/all.gtilde.dat $DIR_PRODUCTS/gtilde/?.gtilde_single.dat $DIR_PRODUCTS/gtilde/??.gtilde_single.dat $DIR_PRODUCTS/gtilde/???.gtilde_single.dat
 fi
 
 ############### Combine Gtilde for each jackknife sample ####################

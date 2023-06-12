@@ -85,15 +85,44 @@ mkdir -p $DIR_PRODUCTS/NNMap
 echo ">Aperture Statistics w/o tesselation | $(date)"
 echo Tiles: $TILES
 echo Thetates: $FILE_THETAS
-for tile in $(awk 'NR>1 {print $1}' $TILES);
-do
-    echo Processing $tile
-    $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/$tile.gtilde_single.dat $FILE_THETAS 0 > $DIR_PRODUCTS/NNMap/$tile.$N2MAP.dat
+# for tile in $(awk 'NR>1 {print $1}' $TILES);
+# do
+#     echo Processing $tile
+#     $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/$tile.gtilde_single.dat $FILE_THETAS 0 > $DIR_PRODUCTS/NNMap/$tile.$N2MAP.dat
 
-done
+# done
 
 $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/all.gtilde.dat $FILE_THETAS 0 > $DIR_PRODUCTS/NNMap/all.$N2MAP.dat
 
+
+# if [ $DO_JACKKNIFING -gt 0 ];
+# then
+    ############### Calculate <N2Map> for each Jackknife Sample ##################
+
+    echo ">Calculating Jackknifing | $(date)"
+    
+    # Iterator Variable for Jackknife Samples
+    J=1
+    
+    while [ $J -lt $NUMBER_JN ]; # Go through all Jackknifes
+    do
+	# Iterator Variable for Thread Number
+	NUMBER_JOBS=0
+	
+	echo ">Jackknifing for $J to $J+$MAX_JOBS | $(date)"
+	
+	    while [ $NUMBER_JOBS -lt $MAX_JOBS ]; # Set Parallel Jobs
+	    do
+	        $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/jn_$J.gtilde.dat $FILE_THETAS 0 > $DIR_PRODUCTS/NNMap/jn_$J.$N2MAP.dat &
+	        ((NUMBER_JOBS++))
+	        ((J++))
+	        # Check if Number of Jackknife Samples is reached
+	    if [ $J -ge $NUMBER_JN ];
+	    then break
+	    fi
+        done
+	done
+# fi
 
 # ############ Do Tesselation for All Gtilde ####################################
 

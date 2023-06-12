@@ -133,7 +133,7 @@ then
 	# Iterator Variable for Thread Number
 	NUMBER_JOBS=0
 	
-	echo "Jackknifing for $I to $J+$MAX_JOBS | $(date)"
+	echo "Jackknifing for $I to $(($I+$MAX_JOBS)) | $(date)"
 	
 	while [ $NUMBER_JOBS -lt $MAX_JOBS ]; # Set Parallel Jobs
 	do

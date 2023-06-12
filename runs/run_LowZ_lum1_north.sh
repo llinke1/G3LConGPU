@@ -59,10 +59,10 @@ NAME_MOCKS=mocks
 NAME_SOURCES=sources
 
 # Number of Jackknifes to be calculated
-NUMBER_JN=2 # Match this to number of tiles
+NUMBER_JN=100 # Match this to number of tiles
 
 # Maximal number of parallel threads
-MAX_JOBS=12 # Match this to number of cores
+MAX_JOBS=20 # Match this to number of cores
 
 DO_JACKKNIFING=0
 
@@ -109,7 +109,7 @@ FILE_OMEGA=$DIR_DATA1/omega.txt
 IS_PHYS=0
 
 # Calculate Gtilde
-#bash $DIR_SCRIPTS/calculateGtildeLowZ.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_AUTO $IS_PHYS $TILES $NUMBER_JN $SIGMA $FILE_SIGMACRIT $MAX_JOBS $NAME_OBJECTS $NAME_SOURCES $DO_JACKKNIFING $GPU $DIR_DATA1 $DIR_DATA2 $FILE_SIGMACRIT $FILE_DA $FILE_OMEGA
+bash $DIR_SCRIPTS/calculateGtildeLowZ.sh $DIR_PRODUCTS $DIR_BIN $DIR_PYTHON $IS_AUTO $IS_PHYS $TILES $NUMBER_JN $SIGMA $FILE_SIGMACRIT $MAX_JOBS $NAME_OBJECTS $NAME_SOURCES $DO_JACKKNIFING $GPU $DIR_DATA1 $DIR_DATA2 $FILE_SIGMACRIT $FILE_DA $FILE_OMEGA
 
 ################ Calculate NNMap (angular) #####################################
 

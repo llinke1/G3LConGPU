@@ -74,14 +74,14 @@ int main(int argc, char* argv[])
   std::vector<double> x1, y1, z1, x2, y2, z2, xS, yS, zS, e1, e2, w, tmp;
   
 
-  if(g3lcong::readSources2Dev(filename_sources, 6, 1, 2, 3, 4, 6, xS,
+  if(g3lcong::readSources2Dev(filename_sources, 7, 1, 2, 3, 4, 6, xS,
 			      yS, e1, e2, w)) return 1;
   
-  if(g3lcong::readLenses2Dev(filename_sources, 6, 1, 2, 5, tmp,
+  if(g3lcong::readLenses2Dev(filename_sources, 7, 1, 2, 5, tmp,
 			      tmp, zS)) return 1;
 
-  if(g3lcong::readLenses2Dev(filename_lenses1, 6, 1, 2, 5, x1, y1, z1)) return 1;
-  if(g3lcong::readLenses2Dev(filename_lenses2, 6, 1, 2, 5, x2, y2, z2)) return 1;
+  if(g3lcong::readLenses2Dev(filename_lenses1, 7, 1, 2, 5, x1, y1, z1)) return 1;
+  if(g3lcong::readLenses2Dev(filename_lenses2, 7, 1, 2, 5, x2, y2, z2)) return 1;
   
 
  //Declare arrays for coordinates of galaxies on device

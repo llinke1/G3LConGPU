@@ -28,7 +28,7 @@ SRCS_CU = $(wildcard *.cu)
 EXECS = calculateApertureStatistics.x calculateGtilde_kdtrees.x calculatePaircount_kdtrees.x
 
 # define the CUDA executables
-EXECS_CU = calculateGtilde_gpu.x calculatePaircount_gpu.x  calculateTriplecount_gpu.x calculateGtilde_gpu_IA.x
+EXECS_CU = calculateGtilde_gpu.x calculatePaircount_gpu.x  calculateTriplecount_gpu.x calculateGtilde_gpu_IA.x calculateGGE.x calculateGE.x calculateGtilde_gpu_IA_DA.x 
 
 # define the object files
 OBJS = $(SRCS:.cpp=.o)
@@ -55,7 +55,7 @@ $(EXECS): $(OBJS)
 	$(GCC) $(CFLAGS) $(INCLUDES) $(filter-out $(EXECS:.x=.o), $(OBJS)) $(@:.x=.o) -o $@ $(LFLAGS) $(LIBS)
 
 $(EXECS_CU): $(OBJS_CU) $(OBJS)
-	$(NVCC) $(INCLUDES) $(filter-out $(EXECS_CU:.x=.obj),  $(OBJS_CU)) $(filter-out $(EXECS:.x=.o), $(OBJS)) $(@:.x=.obj) -o $@ $(LFLAGS) $(LIBS)
+	$(NVCC) $(INCLUDES) $(filter-out $(EXECS_CU:.x=.obj), $(OBJS_CU)) $(filter-out $(EXECS:.x=.o), $(OBJS)) $(@:.x=.obj) -o $@ $(LFLAGS) $(LIBS)
 
 # Include all .d files
 -include $(DEPS)

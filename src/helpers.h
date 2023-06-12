@@ -7,6 +7,8 @@
 #include <vector>
 
 
+
+
 namespace g3lcong
 {
   /**
@@ -24,12 +26,12 @@ namespace g3lcong
    */
   typedef struct
   {
-    ///Theta1 [arcmin]
+    /// Theta1 [arcmin]
     double x_;
-    ///Theta2 [arcmin]
+    /// Theta2 [arcmin]
     double y_;
-    ///Redshift [dimensionless]
-    double z_; 
+    /// Redshift [dimensionless]
+    double z_;
   } lensGalaxy;
 
   /**
@@ -37,20 +39,19 @@ namespace g3lcong
    */
   typedef struct
   {
-    ///Theta1 [arcmin]
+    /// Theta1 [arcmin]
     double x_;
-    ///Theta2 [arcmin]
+    /// Theta2 [arcmin]
     double y_;
-    ///Redshift [dimensionless]
-    double z_; 
-    ///Ellipticity Coordinate 1 [dimensionless]
+    /// Redshift [dimensionless]
+    double z_;
+    /// Ellipticity Coordinate 1 [dimensionless]
     double epsilon1_;
-    ///Ellipticity Coordinate 2 [dimensionless]
+    /// Ellipticity Coordinate 2 [dimensionless]
     double epsilon2_;
-    ///Weight of Galaxy [dimensionless]
+    /// Weight of Galaxy [dimensionless]
     double weight_;
   } sourceGalaxy;
-      
 
   /**
    * Reads in lens galaxies and writes them to device (including redshift)
@@ -66,15 +67,12 @@ namespace g3lcong
    * @param N Number of lenses read in
    * @return 0 if reading was successful
    */
-  int readLenses2Dev(std::string filename,  const int& total_columns,
-		     const int& col_x, const int& col_y, const int& col_z,
-		     std::vector<double>& x, std::vector<double>& y,
-		     std::vector<double>& z);
+  int readLenses2Dev(std::string filename, const int &total_columns,
+                     const int &col_x, const int &col_y, const int &col_z,
+                     std::vector<double> &x, std::vector<double> &y,
+                     std::vector<double> &z);
 
-
-
-
-    /**
+  /**
    * Reads in source galaxies and writes them to device
    *
    * @param filename File with Galaxy Catalog
@@ -91,13 +89,20 @@ namespace g3lcong
    * @param w vector that should contain weight
    * @return 0 if reading was successful
    */
-  int readSources2Dev(std::string filename,  const int& total_columns,
-		      const int& col_x, const int& col_y, const int& col_e1,
-		      const int& col_e2, const int& col_weight, std::vector<double> &x,
-			     std::vector<double> &y, std::vector<double> &e1,
-		      std::vector<double> &e2, std::vector<double> &w);
+  int readSources2Dev(std::string filename, const int &total_columns,
+                      const int &col_x, const int &col_y, const int &col_e1,
+                      const int &col_e2, const int &col_weight, std::vector<double> &x,
+                      std::vector<double> &y, std::vector<double> &e1,
+                      std::vector<double> &e2, std::vector<double> &w);
 
-  
+  int readPhysSources(std::string filename, const int &total_columns,
+                      const int &col_x, const int &col_y, const int &col_e1, const int &col_e2, const int &col_weight, const int &col_DA,
+                      std::vector<double> &x, std::vector<double> &y, std::vector<double> &e1, std::vector<double> &e2, std::vector<double> &weight, std::vector<double> &DA);
+
+  int readPhysLenses(std::string filename, const int &total_columns,
+                     const int &col_x, const int &col_y, const int &col_DA,
+                     std::vector<double> &x, std::vector<double> &y, std::vector<double> &DA);
+
   /**
    * Reads in Function from file and writes to device array
    * Assumes linear binning
@@ -109,11 +114,10 @@ namespace g3lcong
    * @param values Vector that will contain function values
    * @return 0 if reading was successful
    */
-  int readFunction2Dev(std::string filename,  const int& num_bins, double& min,
-		       double& max, std::vector<double> &values);
+  int readFunction2Dev(std::string filename, const int &num_bins, double &min,
+                       double &max, std::vector<double> &values);
 
-
-    /**
+  /**
    * Reads in Function from file and writes to device array
    * Assumes Log binning
    *
@@ -124,9 +128,8 @@ namespace g3lcong
    * @param values Vector that will contain function values
    * @return 0 if reading was successful
    */
-  int readFunctionLog2Dev(std::string filename,  const int& num_bins, double& min,
-		       double& max, std::vector<double> &values);
+  int readFunctionLog2Dev(std::string filename, const int &num_bins, double &min,
+                          double &max, std::vector<double> &values);
 };
-
 
 #endif // G3LCONG_HELPERS_H

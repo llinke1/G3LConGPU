@@ -67,11 +67,11 @@ FILE_DA=${18}
 # Binning for Gtilde
 #THETA_MIN=0.15
 #THETA_MAX=79.9 #199.75 #319.6 (MR) #79.9 (small tiles)
-NBINS=50
+NBINS=20
 THETA_MIN=0.1 #[Mpc]
-THETA_MAX=100 #[Mpc] #70000000
+THETA_MAX=1000 #[Mpc] #70000000
 R_MIN=0.1
-R_MAX=100
+R_MAX=400
 
 # File with Angular Correlation Function
 FILE_OMEGA=${19}  #$DIR_PRODUCTS/omega/all.omega.dat
@@ -129,7 +129,7 @@ then
     # Iterator Variable for Jackknife Samples
     I=1
     
-    
+    echo $NTILES
     while [ $I -lt $NTILES ]; # Go through all Jackknifes
     do
 	# Iterator Variable for Thread Number
@@ -139,6 +139,13 @@ then
 	
 	while [ $NUMBER_JOBS -lt $MAX_JOBS ]; # Set Parallel Jobs
 	do
+		# Check if Number of Jackknife Samples is reached
+	    if [ $I -ge $NTILES ];
+	    then break
+	    fi
+	    
+	    echo $I
+	    
 	    if [ "$IS_PHYS" -gt 0 ]
 	    then
 		python $DIR_PYTHON/combineGtilde.py $I $NTILES $DIR_PRODUCTS/gtilde/jn_$I.gtilde_phys.dat $DIR_PRODUCTS/gtilde/*.gtilde_phys_single.dat  &
@@ -147,10 +154,7 @@ then
 	    fi
 	    ((NUMBER_JOBS++))
 	    ((I++))
-	    # Check if Number of Jackknife Samples is reached
-	    if [ $I -ge $NTILES ];
-	    then break
-	    fi
+
 	done
 	wait # Wait for Jobs to finish
     done

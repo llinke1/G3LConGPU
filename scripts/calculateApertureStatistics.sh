@@ -9,11 +9,14 @@
 # Working Folder for Results, needs to already exist
 DIR_PRODUCTS=$1
 
+
 # Folder with C++ executables
 DIR_BIN=$2
 
+
 # Folder with Python scripts
 DIR_PYTHON=$3
+
 
 # Switch, true if physical Gtilde is calculated
 IS_PHYS=$4
@@ -84,19 +87,19 @@ mkdir -p $DIR_PRODUCTS/NNMap
 
 echo ">Aperture Statistics w/o tesselation | $(date)"
 echo Tiles: $TILES
-echo Thetates: $FILE_THETAS
-# for tile in $(awk 'NR>1 {print $1}' $TILES);
-# do
-#     echo Processing $tile
-#     $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/$tile.gtilde_single.dat $FILE_THETAS 0 > $DIR_PRODUCTS/NNMap/$tile.$N2MAP.dat
+echo Thetas: $FILE_THETAS
+for tile in $(awk 'NR>1 {print $1}' $TILES);
+do
+    echo Processing $tile
+    $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/$tile.gtilde_single.dat $FILE_THETAS 0 > $DIR_PRODUCTS/NNMap/$tile.$N2MAP.dat
 
-# done
+done
 
 $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/all.gtilde.dat $FILE_THETAS 0 > $DIR_PRODUCTS/NNMap/all.$N2MAP.dat
 
 
-# if [ $DO_JACKKNIFING -gt 0 ];
-# then
+if [ $DO_JACKKNIFING -gt 0 ];
+then
     ############### Calculate <N2Map> for each Jackknife Sample ##################
 
     echo ">Calculating Jackknifing | $(date)"
@@ -122,7 +125,7 @@ $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/all.gtilde.dat $FILE
 	    fi
         done
 	done
-# fi
+fi
 
 # ############ Do Tesselation for All Gtilde ####################################
 

@@ -23,9 +23,11 @@ import numpy as np
 is_auto=bool(sys.argv[1])
 N=int(sys.argv[2])
 fn_out=sys.argv[3]
-fns_DD=sys.argv[4:N+3]
-fns_RR=sys.argv[N+3:2*N+2]
-fns_D1R2=sys.argv[2*N+2:3*N+1]
+fns_DD=sys.argv[4:N+4]
+fns_RR=sys.argv[N+4:2*N+4]
+fns_D1R2=sys.argv[2*N+4:3*N+4]
+
+print(fns_DD)
 
 if (not is_auto):
     fns_D2R1=sys.argv[3*N+1:4*N]

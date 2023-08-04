@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 {
   // Checking Command Line
 
-  int n_params=13; // Expected number of params
+  int n_params=15; // Expected number of params
   std::string usage="calculateGtilde_gpu.x filename_sources filename_lenses1 filename_lenses2 filename_omega theta_min theta_max r_min r_max num_bins sigmaZ filename_sigma_crit Physical?"; //Usage description
 
   std::string example="calculateGtilde_gpu.x  ../../Data/KIDS_129.0_-0.5.sources.dat ../../Data/KIDS_129.0_-0.5.objects.dat ../../Data/KIDS_129.0_-0.5.objects.dat ../products/omega_allTiles/all.omega.dat  0.15 79.9 0.1 300 100 0 none 0"; //Example usage
@@ -63,6 +63,10 @@ int main(int argc, char* argv[])
   std::string filename_angular_distance = argv[12];
 
   bool physical=std::stoi(argv[13]); //Is 1 if physical Gtilde, 0 if angular Gtilde
+  bool flipE1 = false;
+  flipE1 = std::stoi(argv[14]); //If 1: Sign of ellipticity component 1 is flipped
+  bool flipE2 = false;
+  flipE2 = std::stoi(argv[15]);
   
   double phi_min=0.0; // Min Phi for calc of Gtilde [radians]
   double phi_max=2*g3lcong::pi; // Max Phi for calc of Gtilde [radians]
@@ -75,7 +79,7 @@ int main(int argc, char* argv[])
   
 
   if(g3lcong::readSources2Dev(filename_sources, 6, 1, 2, 3, 4, 6, xS,
-			      yS, e1, e2, w)) return 1;
+			      yS, e1, e2, w, flipE1, flipE2)) return 1;
 
   if(g3lcong::readLenses2Dev(filename_lenses1, 6, 1, 2, 5, x1, y1, z1)) return 1;
   if(g3lcong::readLenses2Dev(filename_lenses2, 6, 1, 2, 5, x2, y2, z2)) return 1;

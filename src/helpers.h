@@ -95,7 +95,8 @@ namespace g3lcong
 		      const int& col_x, const int& col_y, const int& col_e1,
 		      const int& col_e2, const int& col_weight, std::vector<double> &x,
 			     std::vector<double> &y, std::vector<double> &e1,
-		      std::vector<double> &e2, std::vector<double> &w);
+		      std::vector<double> &e2, std::vector<double> &w,
+          bool flipE1=false, bool flipE2=false);
 
   
   /**

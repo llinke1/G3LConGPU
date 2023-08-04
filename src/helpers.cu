@@ -55,7 +55,8 @@ int g3lcong::readSources2Dev(std::string filename,  const int& total_columns,
 			     const int& col_e1, const int& col_e2,
 			     const int& col_w, std::vector<double> &x,
 			     std::vector<double> &y, std::vector<double> &e1,
-			     std::vector<double> &e2, std::vector<double> &w)
+			     std::vector<double> &e2, std::vector<double> &w,
+           bool flipE1, bool flipE2)
 {
 
 
@@ -87,6 +88,22 @@ int g3lcong::readSources2Dev(std::string filename,  const int& total_columns,
       e2.push_back(values.at(col_e2-1));
       w.push_back(values.at(col_w-1));
 
+    };
+
+    if (flipE1)
+    {
+      for (int i=0; i<e1.size(); i++ )
+      {
+        e1[i]*=(-1);
+      }
+    };
+
+    if (flipE2)
+    {
+      for (int i=0; i<e2.size(); i++ )
+      {
+        e2[i]*=(-1);
+      }
     };
 
   // Success

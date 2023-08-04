@@ -11,7 +11,7 @@
 
 #include "helpers.h"
 
-g3lcong::Kdtree:: Kdtree(const std::string& filename, const int& total_columns, const int& col_x, const int& col_y, const int& col_z, const int& col_epsilon1, const int& col_epsilon2, const int& col_weight )
+g3lcong::Kdtree:: Kdtree(const std::string& filename, const int& total_columns, const int& col_x, const int& col_y, const int& col_z, const int& col_epsilon1, const int& col_epsilon2, const int& col_weight, bool flipE1, bool flipE2 )
 {
   
   //Reading in
@@ -38,6 +38,10 @@ g3lcong::Kdtree:: Kdtree(const std::string& filename, const int& total_columns, 
       if(col_epsilon1!=0) galaxy.epsilon1_ = values.at(col_epsilon1-1);
       if(col_epsilon2!=0) galaxy.epsilon2_ = values.at(col_epsilon2-1);
       if(col_weight!=0) galaxy.weight_ = values.at(col_weight-1);
+
+      if (flipE1) galaxy.epsilon1_*=(-1);
+      if (flipE2) galaxy.epsilon2_*=(-1);
+
 
       galaxies_.push_back(galaxy); //push back galaxy into container
     };

@@ -65,7 +65,7 @@ namespace g3lcong
     Kdtree(const std::string& filename, const int& total_columns,
 	   const int& col_x, const int& col_y, const int& col_z,
 	   const int& col_epsilon1, const int& col_epsilon2,
-	   const int& col_weight );
+	   const int& col_weight, bool flipE1=false, bool flipE2=false );
 
     ///Destructor
     ~Kdtree();

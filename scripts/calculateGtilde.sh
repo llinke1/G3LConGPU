@@ -64,8 +64,11 @@ FILE_SIGMACRIT=${17}
 # File with angular diameter distance
 FILE_DA=${18}
 
+FLIP_E1=${19}
+FLIP_E2=${20}
+
 # Binning for Gtilde
-THETA_MIN=0.15
+THETA_MIN=0.02
 THETA_MAX=79.9 #199.75 #319.6 (MR) #79.9 (small tiles)
 NBINS=128
 R_MIN=0.02 #[Mpc]
@@ -96,11 +99,11 @@ do
     then
 	echo ">GtildePhys for $tile | $(date)"
    
-       $BIN_GTILDE $DIR_DATA1/$tile.$NAME_SOURCES.dat $DIR_DATA1/$tile.$NAME_OBJECTS.dat $DIR_DATA2/$tile.$NAME_OBJECTS.dat $FILE_OMEGA $THETA_MIN $THETA_MAX $R_MIN $R_MAX $NBINS $SIGMA $FILE_SIGMACRIT $FILE_DA $IS_PHYS  > $DIR_PRODUCTS/gtilde/$tile.gtilde_phys_single.dat
+       $BIN_GTILDE $DIR_DATA1/$tile.$NAME_SOURCES.dat $DIR_DATA1/$tile.$NAME_OBJECTS.dat $DIR_DATA2/$tile.$NAME_OBJECTS.dat $FILE_OMEGA $THETA_MIN $THETA_MAX $R_MIN $R_MAX $NBINS $SIGMA $FILE_SIGMACRIT $FILE_DA $IS_PHYS $FLIP_E1 $FLIP_E2  > $DIR_PRODUCTS/gtilde/$tile.gtilde_phys_single.dat
     else
 	echo ">Gtilde for $tile | $(date)"
    
-       $BIN_GTILDE $DIR_DATA1/$tile.$NAME_SOURCES.dat $DIR_DATA1/$tile.$NAME_OBJECTS.dat $DIR_DATA2/$tile.$NAME_OBJECTS.dat $FILE_OMEGA $THETA_MIN $THETA_MAX $R_MIN $R_MAX $NBINS $SIGMA $FILE_SIGMACRIT $FILE_DA $IS_PHYS  > $DIR_PRODUCTS/gtilde/$tile.gtilde_single.dat
+       $BIN_GTILDE $DIR_DATA1/$tile.$NAME_SOURCES.dat $DIR_DATA1/$tile.$NAME_OBJECTS.dat $DIR_DATA2/$tile.$NAME_OBJECTS.dat $FILE_OMEGA $THETA_MIN $THETA_MAX $R_MIN $R_MAX $NBINS $SIGMA $FILE_SIGMACRIT $FILE_DA $IS_PHYS $FLIP_E1 $FLIP_E2 > $DIR_PRODUCTS/gtilde/$tile.gtilde_single.dat
     fi
 done
 

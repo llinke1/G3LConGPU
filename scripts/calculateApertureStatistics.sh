@@ -81,18 +81,18 @@ $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/all.$GTILDE.dat $FIL
 
 ############ Do Tesselation for All Gtilde ####################################
 
-echo ">Tesselation | $(date)"
+# echo ">Tesselation | $(date)"
 
-tesselation all
+# tesselation all
 
-################ Calculate <N2Map> for whole Sample ##########################
+# ################ Calculate <N2Map> for whole Sample ##########################
 
-mkdir -p $DIR_PRODUCTS/NNMap
+# mkdir -p $DIR_PRODUCTS/NNMap
 
 
 
-echo ">Aperture Statistics with tesselation | $(date)"
-$DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/all.$GTILDE.tesselated.dat $FILE_THETAS 1 > $DIR_PRODUCTS/NNMap/all.$N2MAP.tesselated.dat
+# echo ">Aperture Statistics with tesselation | $(date)"
+# $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/all.$GTILDE.tesselated.dat $FILE_THETAS 1 > $DIR_PRODUCTS/NNMap/all.$N2MAP.tesselated.dat
 
 ############ Do Tesselation for Jackknife Samples #############################
 

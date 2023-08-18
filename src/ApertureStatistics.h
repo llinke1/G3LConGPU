@@ -109,14 +109,49 @@ namespace g3lcong
      */
     std::complex<double> NNM(const double &theta1, const double &theta2, const double &theta3);
 
+    /**
+     * Calculates <NMM> for the given aperture radii
+     * Note that this is *not* the aperture statistic <NMapMap>!
+     * @param theta1 first aperture radius [arcmin]
+     * @param theta2 second aperture radius [arcmin]
+     * @param theta3 third aperture radius [arcmin]
+     * @retval NMM in complex number [Units of Gtilde]
+     */
     std::complex<double> NMM(const double &theta1, const double &theta2, const double &theta3);
 
-    std::complex<double> NMMstar(const double &theta1, const double & theta2, const double &theta3);
+    /**
+     * Calculates <NMM*> for the given aperture radii
+     * Note that this is *not* the aperture statistic <NMapMap>!
+     * @param theta1 first aperture radius [arcmin]
+     * @param theta2 second aperture radius [arcmin]
+     * @param theta3 third aperture radius [arcmin]
+     * @retval NMM* in complex number [Units of Gtilde]
+     */
+    std::complex<double> NMMstar(const double &theta1, const double &theta2, const double &theta3);
 
+    /**
+     * Calculates aperture statistic <NMapMap> from <NMM> and <NMM*>
+     *  @param NMM calculated <NMM>
+     * @param NMMstar calculated <NMM*>
+     * @retval <NMapMap> (E-mode aperture statistic)
+     */
+    double NMapMap(std::complex<double> NMM, std::complex<double> NMMstar);
 
-    double NMapMap(std::complex <double> NMM, std::complex <double> NMMstar);
-    double NMperpMperp(std::complex <double> NMM, std::complex <double> NMMstar);
-    double NMapMperp(std::complex <double> NMM, std::complex <double> NMMstar);
+    /**
+     * Calculates aperture statistic <NMperpMperp> from <NMM> and <NMM*>
+     *  @param NMM calculated <NMM>
+     * @param NMMstar calculated <NMM*>
+     * @retval <NMperpMperp> (B-mode aperture statistic)
+     */
+    double NMperpMperp(std::complex<double> NMM, std::complex<double> NMMstar);
+
+    /**
+     * Calculates aperture statistic <NMapMperp> from <NMM> and <NMM*>
+     *  @param NMM calculated <NMM>
+     * @param NMMstar calculated <NMM*>
+     * @retval <NMapMperp> (paryity violating B-mode aperture statistic)
+     */
+    double NMapMperp(std::complex<double> NMM, std::complex<double> NMMstar);
   };
 }
 #endif // G3LCONG_APERTURESTATISTICS_H

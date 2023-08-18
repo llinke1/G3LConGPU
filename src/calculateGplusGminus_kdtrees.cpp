@@ -32,9 +32,9 @@ int main(int argc, char *argv[])
   // Checking Command Line
 
   int n_params = 8;                                                                                                                                                                               // Expected number of params
-  std::string usage = "calculateGplusGminus_kdtrees.x filename_sources filename_lenses1 filename_lenses2 filename_omega theta_min theta_max r_min r_max num_bins sigmaZ filename_sigma_crit Physical?"; // Usage description
+  std::string usage = "calculateGplusGminus_kdtrees.x filename_sources filename_lenses1 filename_lenses2 theta_min theta_max num_bins flipE1? flipE2?"; // Usage description
 
-  std::string example = "calculateGplusGminus_kdtrees.x  ../../Data/KIDS_129.0_-0.5.sources.dat ../../Data/KIDS_129.0_-0.5.objects.dat ../../Data/KIDS_129.0_-0.5.objects.dat ../products/omega_allTiles/all.omega.dat  0.15 79.9 0.1 300 100 0 none 0"; // Example usage
+  std::string example = "calculateGplusGminus_kdtrees.x  ../../Data/KIDS_129.0_-0.5.sources.dat ../../Data/KIDS_129.0_-0.5.objects.dat ../../Data/KIDS_129.0_-0.5.objects.dat 0.15 79.9 300 0 0"; // Example usage
 
   // Check Number of CMD Line arguments
   g3lcong::checkCmdLine(argc, n_params, usage, example);

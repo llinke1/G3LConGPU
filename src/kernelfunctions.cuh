@@ -44,6 +44,35 @@ __global__ void addToGtilde(double* x1, double* y1, double* x2, double* y2,
 			    double *Greal, double *Gimag,
 			    double *weight);
 
+
+/**
+ * Kernel function, which updates Gplus and Gminus in angular units
+ * Function is executed for each thread and updates Gtilde and weight 
+ * Gtilde and weight are stored in global (not shared) memory
+ *
+ * @param xL x-coordinates of lens1 galaxies [arcmin], stored on device
+ * @param yL y-coordinates of lens1 galaxies [arcmin], stored on device
+ * @param x1 x-coordinates of lens2 galaxies [arcmin], stored on device
+ * @param y1 y-coordinates of lens2 galaxies [arcmin], stored on device
+ * @param x2 x-coordinates of source galaxies [arcmin], stored on device
+ * @param y2 y-coordinates of source galaxies [arcmin], stored on device
+ * @param e1 ellipticity part1 of sources, stored on device
+ * @param e2 ellipticity part2 of sources, stored on device
+ * @param w weight of sources, stored on device
+ * @param omega omega omega values, stored on device
+ * @param sigma2 Square of stddev of z weighting
+ * @param omega_theta_min Minimum theta for omega array [arcmin]
+ * @param omega_theta_max Maximum theta for omega array [arcmin]
+ * @param num_bins Number of bins for omega
+ * @param N1 Number of lens 1 galaxies
+ * @param N2 Number of lens 2 galaxies
+ * @param NS Number of source galaxies
+ * @param theta_min Minimal Theta [arcmin]
+ * @param theta_max Maximal Theta [arcmin]
+ * @param Greal, Storage for real part of Gtilde on global memory
+ * @param Gimag, Storage for imag part of Gtilde on global memory
+ * @param weight, Storage for weight on global memory
+ */
 __global__ void addToGplusGminus(double* xL, double* yL, double* x1, double* y1,
 			    double* x2, double* y2, double* e11, double* e21, double* e12, double * e22,
 			    double *w1, double *w2,

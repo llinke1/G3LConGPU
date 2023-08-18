@@ -109,7 +109,7 @@ then
 	
 	    while [ $NUMBER_JOBS -lt $MAX_JOBS ]; # Set Parallel Jobs
 	    do
-	        $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/jn_$J.gtilde.dat $FILE_THETAS 0 > $DIR_PRODUCTS/NNMap/jn_$J.$N2MAP.dat &
+	        $DIR_BIN/calculateNNM.x $DIR_PRODUCTS/gtilde/jn_$J.gtilde.dat $FILE_THETAS 0 > $DIR_PRODUCTS/NNMap/jn_$J.$N2MAP.dat &
 	        ((NUMBER_JOBS++))
 	        ((J++))
 	        # Check if Number of Jackknife Samples is reached
@@ -133,7 +133,7 @@ fi
 
 
 # echo ">Aperture Statistics with tesselation | $(date)"
-# $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/all.$GTILDE.tesselated.dat $FILE_THETAS 1 > $DIR_PRODUCTS/NNMap/all.$N2MAP.tesselated.dat
+# $DIR_BIN/calculateNNM.x $DIR_PRODUCTS/gtilde/all.$GTILDE.tesselated.dat $FILE_THETAS 1 > $DIR_PRODUCTS/NNMap/all.$N2MAP.tesselated.dat
 
 ############ Do Tesselation for Jackknife Samples #############################
 
@@ -182,7 +182,7 @@ fi
 	
 # 	while [ $NUMBER_JOBS -lt $MAX_JOBS ]; # Set Parallel Jobs
 # 	do
-# 	    $DIR_BIN/calculateApertureStatistics.x $DIR_PRODUCTS/gtilde/jn_$J.$GTILDE.tesselated.dat $FILE_THETAS > $DIR_PRODUCTS/NNMap/jn_$J.$N2MAP.tesselated.dat &
+# 	    $DIR_BIN/calculateNNM.x $DIR_PRODUCTS/gtilde/jn_$J.$GTILDE.tesselated.dat $FILE_THETAS > $DIR_PRODUCTS/NNMap/jn_$J.$N2MAP.tesselated.dat &
 # 	    ((NUMBER_JOBS++))
 # 	    ((J++))
 # 	    # Check if Number of Jackknife Samples is reached

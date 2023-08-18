@@ -25,10 +25,10 @@ SRCS = $(wildcard *.cpp)
 SRCS_CU = $(wildcard *.cu)
 
 # define the executables (ADD ALL C++ EXECUTABLES HERE!!!!)
-EXECS = calculateApertureStatistics.x calculateGtilde_kdtrees.x calculatePaircount_kdtrees.x
+EXECS = calculateNNM.x calculateGtilde_kdtrees.x calculatePaircount_kdtrees.x calculateNMM.x  calculateGplusGminus_kdtrees.x
 
 # define the CUDA executables
-EXECS_CU = calculateGtilde_gpu.x calculatePaircount_gpu.x  calculateTriplecount_gpu.x
+EXECS_CU = calculateGtilde_gpu.x calculatePaircount_gpu.x  calculateTriplecount_gpu.x calculateGplusGminus_gpu.x
 
 # define the object files
 OBJS = $(SRCS:.cpp=.o)

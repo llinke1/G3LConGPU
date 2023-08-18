@@ -7,13 +7,13 @@
 #include "Kdtree.h"
 #include "Function.h"
 
-#define THREADS_KDTREE 8 //Number of threads for KdTree Parallelization
+#define THREADS_KDTREE 8 // Number of threads for KdTree Parallelization
 
 namespace g3lcong
 {
 
   /**
-   * Class for the computation of Gtilde 
+   * Class for the computation of Gtilde
    * Based on Code by Patrick Simon
    *
    * @author Laila Linke llinke@astro.uni-bonn.de
@@ -22,48 +22,44 @@ namespace g3lcong
   class ThreePtStat
   {
   public:
-
-    ///Binning for Distance Lens-Source [arcmin]
+    /// Binning for Distance Lens-Source [arcmin]
     double theta_min_, theta_max_;
 
-    ///Logarithmic Binsize for theta [arcmin]
+    /// Logarithmic Binsize for theta [arcmin]
     double theta_binsize_;
 
-    ///Binning for Physical Distance Lens-Source [Mpc]
+    /// Binning for Physical Distance Lens-Source [Mpc]
     double r_min_, r_max_;
 
-    ///Logarithmic Binsize for r [Mpc]
+    /// Logarithmic Binsize for r [Mpc]
     double r_binsize_;
 
-    
-    ///Binning for Angle between Lens1-Source and Lens2-Source [rad]
+    /// Binning for Angle between Lens1-Source and Lens2-Source [rad]
     double phi_min_, phi_max_;
 
-    ///Linear Binsize for Phi [rad]
-    double  phi_binsize_;
+    /// Linear Binsize for Phi [rad]
+    double phi_binsize_;
 
-    ///Number of Bins
+    /// Number of Bins
     int num_bins_;
 
-    ///Container for Real part of Gtilde
+    /// Container for Real part of Gtilde
     std::vector<double> G_real_total_;
 
-    ///Container for Imaginary part of Gtilde
+    /// Container for Imaginary part of Gtilde
     std::vector<double> G_imag_total_;
 
-    ///Container for Weight
+    std::vector<std::complex<double>> G_plus_total_;
+    std::vector<std::complex<double>> G_minus_total_;
+
+    /// Container for Weight
     std::vector<double> weight_total_;
 
-    
     std::vector<double> theta1_com_total_;
     std::vector<double> theta2_com_total_;
     std::vector<double> phi_com_total_;
 
-
-
-    
-    
-    ///Empty Constructor
+    /// Empty Constructor
     ThreePtStat(){};
 
     /**
@@ -75,9 +71,9 @@ namespace g3lcong
      * @param phi_max maximal phi [radians]
      * @param num_bins number of bins
      */
-    ThreePtStat(const double& theta_min, const double& theta_max,
-		const double& phi_min, const double& phi_max,
-		const int& num_bins);
+    ThreePtStat(const double &theta_min, const double &theta_max,
+                const double &phi_min, const double &phi_max,
+                const int &num_bins);
 
     /**
      * Constructor from Binning for physical distances
@@ -90,14 +86,10 @@ namespace g3lcong
      * @param phi_max maximal phi [radians]
      * @param num_bins number of bins
      */
-    ThreePtStat(const double& theta_min, const double& theta_max,
-		const double& r_min, const double& r_max,
-		const double& phi_min, const double& phi_max,
-		const int& num_bins);
-  
-
-    
- 
+    ThreePtStat(const double &theta_min, const double &theta_max,
+                const double &r_min, const double &r_max,
+                const double &phi_min, const double &phi_max,
+                const int &num_bins);
 
     /**
      * Computes Gtilde
@@ -110,8 +102,7 @@ namespace g3lcong
      * @param sigmaZ Stddev of Gaussian redshift weight (if 0: no weighting)
      */
     void tripleTreeCount(Kdtree sources, Kdtree lenses1, Kdtree lenses2,
-			 Function* omega, const double& sigmaZ);
-
+                         Function *omega, const double &sigmaZ);
 
     /**
      * Computes GtildePhys
@@ -126,11 +117,11 @@ namespace g3lcong
      * @param angular_distance Function for angular diameter distance
      */
     void tripleTreeCount(Kdtree sources, Kdtree lenses1, Kdtree lenses2,
-			 Function* omega, double sigmaZ, Function* sigma_crit,
-			 Function* angular_distance);
-    
+                         Function *omega, double sigmaZ, Function *sigma_crit,
+                         Function *angular_distance);
 
-    
+    void tripleTreeCount_SSL(Kdtree lenses, Kdtree sources1, Kdtree sources2);
+
     /**
      * Recursive subroutine for the computation of Gtilde
      *
@@ -146,17 +137,24 @@ namespace g3lcong
      * @param theta2_com Theta 2 of Center of Mass of Bin [arcmin]
      * @param phi_com Phi of Center of Mass of Bin
      */
-    void tripleTreeCountSub(Kdnode* source, Kdnode* lens1, Kdnode* lens2,
-			    Function* omega, double sigmaZ,
-			    std::vector<double>& G_real,
-			    std::vector<double>& G_imag,
-			    std::vector<double>& weight,
-			    std::vector<double>& theta1_com,
-			    std::vector<double>& theta2_com,
-			    std::vector<double>& phi_com);
+    void tripleTreeCountSub(Kdnode *source, Kdnode *lens1, Kdnode *lens2,
+                            Function *omega, double sigmaZ,
+                            std::vector<double> &G_real,
+                            std::vector<double> &G_imag,
+                            std::vector<double> &weight,
+                            std::vector<double> &theta1_com,
+                            std::vector<double> &theta2_com,
+                            std::vector<double> &phi_com);
 
+    void tripleTreeCount_SSL_Sub(Kdnode *lens, Kdnode *source1, Kdnode *source2,
+                                 std::vector<std::complex<double>> &Gplus,
+                                 std::vector<std::complex<double>> &Gminus,
+                                 std::vector<double> &weight,
+                                 std::vector<double> &theta1_com,
+                                 std::vector<double> &theta2_com,
+                                 std::vector<double> &phi_com);
 
-        /**
+    /**
      * Recursive subroutine for the computation of GtildePhys
      *
      * @param source Kdnode with source galaxies
@@ -173,22 +171,19 @@ namespace g3lcong
      * @param r2_com R 2 of Center of Mass of Bin [Mpc]
      * @param phi_com Phi of Center of Mass of Bin
      */
-    void tripleTreeCountSub(Kdnode* source, Kdnode* lens1, Kdnode* lens2,
-			    Function* omega, double sigmaZ,
-			    Function* sigma_crit, Function* angular_distance,
-			    std::vector<double>& G_real_sigCrit,
-			    std::vector<double>& G_imag_sigCrit,
-			    std::vector<double>& weight_sigCrit,
-			    std::vector<double>& r1_com,
-			    std::vector<double>& r2_com,
-			    std::vector<double>& phi_com);
-
-
-    
+    void tripleTreeCountSub(Kdnode *source, Kdnode *lens1, Kdnode *lens2,
+                            Function *omega, double sigmaZ,
+                            Function *sigma_crit, Function *angular_distance,
+                            std::vector<double> &G_real_sigCrit,
+                            std::vector<double> &G_imag_sigCrit,
+                            std::vector<double> &weight_sigCrit,
+                            std::vector<double> &r1_com,
+                            std::vector<double> &r2_com,
+                            std::vector<double> &phi_com);
 
     /**
      * Calculates triangle distances within the system
-     * 
+     *
      * @param source Kdnode with source galaxies
      * @param lens1 Kdnode with first lens galaxies
      * @param lens2 Kdnode with second lens galaxies
@@ -199,19 +194,13 @@ namespace g3lcong
      * @param c2 vector lens2-source
      * @param accept is true if triangle fits to system
      */
-    void defineTriangle(Kdnode* source, Kdnode* lens1, Kdnode* lens2,
-			double& a, double& b, double& phi,
-			std::complex<double>& c1, std::complex<double>& c2,
-			bool& accept);
+    void defineTriangle(Kdnode *source, Kdnode *lens1, Kdnode *lens2,
+                        double &a, double &b, double &phi,
+                        std::complex<double> &c1, std::complex<double> &c2,
+                        bool &accept);
 
-
-    
-
-    
-    ///Splits Kdnode List for parallel processing
-    void split(std::vector<Kdnode*>& list);
-
-    
+    /// Splits Kdnode List for parallel processing
+    void split(std::vector<Kdnode *> &list);
   };
 }
-#endif //GGGL_THREEPTSTAT_H
+#endif // GGGL_THREEPTSTAT_H

@@ -24,9 +24,9 @@ int main(int argc, char* argv[])
 {
  
   int n_params = 3; //Expected number of params
-  std::string usage="calculateApertureStatistics.x filename_Gtilde filename_Thetas Tesselated?"; //Usage description
+  std::string usage="calculateNNM.x filename_Gtilde filename_Thetas Tesselated?"; //Usage description
 
-  std::string example="calculateApertureStatistics.x gtilde_allTiles/all.gtilde.dat thetas.dat 0"; //Example usage
+  std::string example="calculateNNM.x gtilde_allTiles/all.gtilde.dat thetas.dat 0"; //Example usage
 
   // Check Number of CMD Line arguments
   g3lcong::checkCmdLine(argc, n_params, usage, example);

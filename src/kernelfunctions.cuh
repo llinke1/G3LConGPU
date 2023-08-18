@@ -44,6 +44,17 @@ __global__ void addToGtilde(double* x1, double* y1, double* x2, double* y2,
 			    double *Greal, double *Gimag,
 			    double *weight);
 
+__global__ void addToGplusGminus(double* xL, double* yL, double* x1, double* y1,
+			    double* x2, double* y2, double* e11, double* e21, double* e12, double * e22,
+			    double *w1, double *w2,
+			    int num_bins, int NL, int N1, int N2,
+			    double theta_min, double theta_max,
+			    double *Gplus_real, double *Gplus_imag,
+				double *Gminus_real, double *Gminus_imag,
+			    double *weight);
+
+
+
 /**
  * Kernel function, which updates Gtilde in physical units w/o z weighting
  * Function is executed for each thread and updates Gtilde and weight 

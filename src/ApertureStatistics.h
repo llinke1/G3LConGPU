@@ -12,7 +12,7 @@ namespace g3lcong
   /**
    * Class for the calculation of the aperture statistics from Gtilde
    * Uses the exponential filter from Schneider & Watts (2005)
-   * Depending on Gtilde computes either the dimensionless <N2M> or 
+   * Depending on Gtilde computes either the dimensionless <N2M> or
    * the <N2M>_phys in [Msun/Mpc²]
    *
    * @author Laila Linke llinke@astro.uni-bonn.de
@@ -20,7 +20,6 @@ namespace g3lcong
   class ApertureStatistics
   {
   private:
-
     /// Container for first bin axis of Gtilde [arcmin or Mpc]
     std::vector<double> vartheta1_;
     /// Container for second bin axis of Gtilde [arcmin or Mpc]
@@ -28,13 +27,17 @@ namespace g3lcong
     /// Container for third bin axis of Gtilde [rad]
     std::vector<double> phi_;
     /// Container for bin volumes [arcmin^2*rad or Mpc^2*rad]
-    std::vector<double> V_;    
+    std::vector<double> V_;
     /// Container for Gtilde
     std::vector<std::complex<double>> Gtilde_;
 
+    /// Container for Gplus
+    std::vector<std::complex<double>> Gplus_;
+    /// Container for Gminus
+    std::vector<std::complex<double>> Gminus_;
 
     /**
-     * Helping Parameters a and Theta8 
+     * Helping Parameters a and Theta8
      * \f$ a=2\frac{\theta_1^2 \theta_2^2 \theta_3^2}{\theta_1^2\theta_2^2 + \theta_1^2\theta_3^2 + \theta_2^2\theta_3^2}\f$
      * \f$ \Theta^8 = \frac{(\theta_1^2\theta_2^2 + \theta_1^2\theta_3^2 + \theta_2^2\theta_3^2)^2}{9} \f$
      * @param theta1 first coordinate [arcmin or Mpc]
@@ -42,9 +45,8 @@ namespace g3lcong
      * @param theta3 third coordinate [arcmin or Mpc]
      * @return Tuple containing a and Theta8
      */
-    std::tuple<double, double> a_Theta8(const double& theta1, const double& theta2, const double& theta3);
+    std::tuple<double, double> a_Theta8(const double &theta1, const double &theta2, const double &theta3);
 
-    
     /**
      * Integral Kernel for N2Map
      * @param vartheta1 Distance lens1-source [arcmin or Mpc]
@@ -56,8 +58,8 @@ namespace g3lcong
      * @param a2 a-parameter, precomputed for the thetas
      * @param bigT Theta8 parameter, precomputed for the thetas
      */
-    std::complex<double> A_NNM(const double& vartheta1, const double& vartheta2, const double& phi,
-			       const double& theta1, const double& theta2, const double& a2, const double& bigT);
+    std::complex<double> A_NNM(const double &vartheta1, const double &vartheta2, const double &phi,
+                               const double &theta1, const double &theta2, const double &a2, const double &bigT);
 
     /**
      * Reads in Gtilde file to Gtilde_, set bins and computes bin volumes
@@ -65,10 +67,17 @@ namespace g3lcong
      * @param tesselated True, if Gtilde has been tesselated, false if Gtilde is on regular grid
      */
     void readGtilde(std::string filename, bool tesselated);
-    
-  public:
 
-    ///Empty Constructor
+    std::complex<double> A_NMM(const double &vartheta1, const double &vartheta2, const double &phi,
+                               const double &theta1, const double &theta2, const double &theta3, const double &a2, const double &bigT);
+
+    std::complex<double> A_NMM_star(const double &vartheta1, const double &vartheta2, const double &phi,
+                                    const double &theta1, const double &theta2, const double &theta3, const double &a2, const double &bigT);
+
+    void readGplusGminus(std::string filename);
+
+  public:
+    /// Empty Constructor
     ApertureStatistics(){};
 
     /**
@@ -86,9 +95,10 @@ namespace g3lcong
      * Reads in Gtilde, bins and computes bin volumes
      * @param filenameGtilde Filename for Gtilde
      * @param tesselated True, if Gtilde has been tesselated, false if Gtilde is on regular grid
+     * @param type Either "gtilde" or "gplusgminus"
      */
-    ApertureStatistics(std::string filenameGtilde, bool tesselated);
-    
+    ApertureStatistics(std::string filenameGtilde, bool tesselated, std::string type = "gtilde");
+
     /**
      * Calculates N2Map for the given aperture radii
      * \f$ \langle N^2M_{\textrm{ap}} \rangle = \sum_i \sum_j \sum_k V_{\text{bin}} A_{NNM}(\vartheta_i, \vartheta_j, \psi_k) G(\vartheta_i, \vartheta_j, \psi_k) \f$
@@ -96,13 +106,17 @@ namespace g3lcong
      * @param theta2 second aperture radius [arcmin or Mpc]
      * @param theta3 third aperture radius [arcmin or Mpc]
      * @retval NNMap and NNMperp in complex number [Units of Gtilde]
-     */ 
-    std::complex<double> NNM(const double& theta1, const double& theta2, const double& theta3);
+     */
+    std::complex<double> NNM(const double &theta1, const double &theta2, const double &theta3);
 
- 
+    std::complex<double> NMM(const double &theta1, const double &theta2, const double &theta3);
+
+    std::complex<double> NMMstar(const double &theta1, const double & theta2, const double &theta3);
 
 
-
+    double NMapMap(std::complex <double> NMM, std::complex <double> NMMstar);
+    double NMperpMperp(std::complex <double> NMM, std::complex <double> NMMstar);
+    double NMapMperp(std::complex <double> NMM, std::complex <double> NMMstar);
   };
 }
-#endif //G3LCONG_APERTURESTATISTICS_H
+#endif // G3LCONG_APERTURESTATISTICS_H

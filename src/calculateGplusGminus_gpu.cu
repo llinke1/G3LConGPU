@@ -183,6 +183,7 @@ int main(int argc, char *argv[])
 
         int index = i * num_bins * num_bins + j * num_bins + k;
 
+
         // Weight
         double weight_ = weight[index];
         // Gplus real
@@ -217,11 +218,11 @@ int main(int argc, char *argv[])
             << deltaTheta1 << " " // bin size theta 1[arcmin]
             << deltaTheta2 << " " // bin size theta 2[arcmin]
             << phi_binsize << " " // phi bin size [radians]
-            << Gplus_real << " "  // Real part of Gplus [dimensionless]
-            << Gplus_imag << " "  // Imaginary part of Gtilde [dimensionless]
-            << Gminus_real << " " // Real part of Gplus [dimensionless]
-            << Gminus_imag << " " // Imaginary part of Gtilde [dimensionless]
-            << weight             // Weight of Gtilde [dimensionless]
+            << Gplus_real_ << " "  // Real part of Gplus [dimensionless]
+            << Gplus_imag_ << " "  // Imaginary part of Gtilde [dimensionless]
+            << Gminus_real_ << " " // Real part of Gplus [dimensionless]
+            << Gminus_imag_ << " " // Imaginary part of Gtilde [dimensionless]
+            << weight_             // Weight of Gtilde [dimensionless]
             << std::endl;
       };
     };

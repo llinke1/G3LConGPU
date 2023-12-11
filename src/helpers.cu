@@ -135,7 +135,9 @@ int g3lcong::readFunctionLog2Dev(std::string filename,  const int& num_bins,
 			      double& min,  double& max, std::vector<double> &values)
 {
   // Read in Function
+
   Function func(filename, 0.);
+
   min=func.x_values_.at(0);
   max=func.x_values_.back();
   double bin=log(max/min)/num_bins; //Logwidth of a bin

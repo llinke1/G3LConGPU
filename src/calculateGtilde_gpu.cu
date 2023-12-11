@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 {
   // Checking Command Line
 
-  int n_params=15; // Expected number of params
+  int n_params=16; // Expected number of params
   std::string usage="calculateGtilde_gpu.x filename_sources filename_lenses1 filename_lenses2 filename_omega theta_min theta_max r_min r_max num_bins sigmaZ filename_sigma_crit Physical?"; //Usage description
 
   std::string example="calculateGtilde_gpu.x  ../../Data/KIDS_129.0_-0.5.sources.dat ../../Data/KIDS_129.0_-0.5.objects.dat ../../Data/KIDS_129.0_-0.5.objects.dat ../products/omega_allTiles/all.omega.dat  0.15 79.9 0.1 300 100 0 none 0"; //Example usage
@@ -53,20 +53,21 @@ int main(int argc, char* argv[])
   double theta_max=std::stod(argv[6]); // Max Theta for calc of Gtilde [arcmin]
   double r_min=std::stod(argv[7]); // Min R for calc of Gtilde [Mpc] (ignored if not physical)
   double r_max=std::stod(argv[8]); // Max R for calc of Gtilde [Mpc] (ignored if not physical)
-  int num_bins=std::stoi(argv[9]); // Number of Bins for Gtilde on ONE axis
+  int num_bins=std::stoi(argv[9]); // Number of Bins for Gtilde on vartheta1 axis
+  int num_bins_phi=std::stoi(argv[10]);
 
   // Width of Redshift Weighting Gaussian, if 0:  no weighting
-  double sigmaZ=std::stod(argv[10]);
+  double sigmaZ=std::stod(argv[11]);
   // File with source-averaged Sigma Crit, if "none": SigCrit is 1
-  std::string filename_sigma_crit = argv[11];
+  std::string filename_sigma_crit = argv[12];
   // File with angular diameter distance, if "none": distance is 1
-  std::string filename_angular_distance = argv[12];
+  std::string filename_angular_distance = argv[13];
 
-  bool physical=std::stoi(argv[13]); //Is 1 if physical Gtilde, 0 if angular Gtilde
+  bool physical=std::stoi(argv[14]); //Is 1 if physical Gtilde, 0 if angular Gtilde
   bool flipE1 = false;
-  flipE1 = std::stoi(argv[14]); //If 1: Sign of ellipticity component 1 is flipped
+  flipE1 = std::stoi(argv[15]); //If 1: Sign of ellipticity component 1 is flipped
   bool flipE2 = false;
-  flipE2 = std::stoi(argv[15]);
+  flipE2 = std::stoi(argv[16]);
   
   double phi_min=0.0; // Min Phi for calc of Gtilde [radians]
   double phi_max=2*g3lcong::pi; // Max Phi for calc of Gtilde [radians]
@@ -158,22 +159,29 @@ int main(int argc, char* argv[])
   // Try reading and stop if not successful
   if(g3lcong::readFunctionLog2Dev(filename_omega, num_bins, omega_theta_min,
 		      omega_theta_max, omega)) return 1;
+
+
+  if (physical)
+   {
   if(g3lcong::readFunction2Dev(filename_sigma_crit, num_bins, sigma_crit_z_min,
 		      sigma_crit_z_max, sigma_crit)) return 1;
   if(g3lcong::readFunction2Dev(filename_angular_distance, num_bins,
 		      angular_distance_z_min, angular_distance_z_max,
 		      angular_distance))
     return 1;
+   };
+
 
   err1 = cudaMalloc(&dev_omega, num_bins*sizeof(double));
   err2 = cudaMalloc(&dev_sigma_crit, num_bins*sizeof(double));
   err3 = cudaMalloc(&dev_angular_distance, num_bins*sizeof(double));
 
   cudaMemcpy(dev_omega, omega.data(), num_bins*sizeof(double), cudaMemcpyHostToDevice);
+  if (physical)
+  {
   cudaMemcpy(dev_sigma_crit, sigma_crit.data(), num_bins*sizeof(double), cudaMemcpyHostToDevice);
   cudaMemcpy(dev_angular_distance, angular_distance.data(), num_bins*sizeof(double), cudaMemcpyHostToDevice);
-
-
+}
 
   // Calculate Gtilde
 
@@ -181,9 +189,9 @@ int main(int argc, char* argv[])
   double *dev_Greal, *dev_Gimag, *dev_weight;
 
   //Allocate memory for Greal, Gimag and weight on device
-  cudaMalloc(&dev_Greal, num_bins*num_bins*num_bins*sizeof(double));
-  cudaMalloc(&dev_Gimag, num_bins*num_bins*num_bins*sizeof(double));
-  cudaMalloc(&dev_weight, num_bins*num_bins*num_bins*sizeof(double));
+  cudaMalloc(&dev_Greal, num_bins*num_bins*num_bins_phi*sizeof(double));
+  cudaMalloc(&dev_Gimag, num_bins*num_bins*num_bins_phi*sizeof(double));
+  cudaMalloc(&dev_weight, num_bins*num_bins*num_bins_phi*sizeof(double));
 
   //Check if memory for Gtilde could be allocated on device
   if(0==dev_Greal || 0==dev_Gimag || 0==dev_weight)
@@ -193,9 +201,9 @@ int main(int argc, char* argv[])
     };
 
   //Set Gtilde to 0 on device
-  cudaMemset(dev_Greal, 0, num_bins*num_bins*num_bins*sizeof(double));
-  cudaMemset(dev_Gimag, 0, num_bins*num_bins*num_bins*sizeof(double));
-  cudaMemset(dev_weight, 0, num_bins*num_bins*num_bins*sizeof(double));
+  cudaMemset(dev_Greal, 0, num_bins*num_bins*num_bins_phi*sizeof(double));
+  cudaMemset(dev_Gimag, 0, num_bins*num_bins*num_bins_phi*sizeof(double));
+  cudaMemset(dev_weight, 0, num_bins*num_bins*num_bins_phi*sizeof(double));
 
 
 
@@ -216,7 +224,7 @@ int main(int argc, char* argv[])
 							sigma_crit_z_max,
 							angular_distance_z_min,
 							angular_distance_z_max,
-							num_bins, N1, N2, NS,
+							num_bins, num_bins_phi, N1, N2, NS,
 							theta_min, theta_max,
 							dev_Greal,
 							dev_Gimag, dev_weight);
@@ -228,7 +236,7 @@ int main(int argc, char* argv[])
 						dev_e1, dev_e2, dev_w,
 						dev_omega,
 						sigma2, omega_theta_min,
-						omega_theta_max, num_bins, N1,
+						omega_theta_max, num_bins, num_bins_phi, N1,
 						N2, NS, theta_min, theta_max,
 						dev_Greal, dev_Gimag,
 						dev_weight);
@@ -240,9 +248,9 @@ int main(int argc, char* argv[])
   double *Greal_tot, *Gimag_tot, *weight_tot;
   
   //Allocate memory for total Greal, Gimag and weight on host
-  Greal_tot=(double *) malloc(num_bins*num_bins*num_bins*sizeof(double));
-  Gimag_tot=(double *) malloc(num_bins*num_bins*num_bins*sizeof(double));
-  weight_tot=(double *) malloc(num_bins*num_bins*num_bins*sizeof(double));
+  Greal_tot=(double *) malloc(num_bins*num_bins*num_bins_phi*sizeof(double));
+  Gimag_tot=(double *) malloc(num_bins*num_bins*num_bins_phi*sizeof(double));
+  weight_tot=(double *) malloc(num_bins*num_bins*num_bins_phi*sizeof(double));
 
   if(Greal_tot==NULL || Gimag_tot==NULL || weight_tot==NULL)
     {
@@ -251,11 +259,11 @@ int main(int argc, char* argv[])
     };
 
     //Copy Gtilde from device to host
-  cudaMemcpy(Greal_tot, dev_Greal, num_bins*num_bins*num_bins*sizeof(double),
+  cudaMemcpy(Greal_tot, dev_Greal, num_bins*num_bins*num_bins_phi*sizeof(double),
 	     cudaMemcpyDeviceToHost);
-  cudaMemcpy(Gimag_tot, dev_Gimag,  num_bins*num_bins*num_bins*sizeof(double),
+  cudaMemcpy(Gimag_tot, dev_Gimag,  num_bins*num_bins*num_bins_phi*sizeof(double),
 	     cudaMemcpyDeviceToHost);
-  cudaMemcpy(weight_tot, dev_weight, num_bins*num_bins*num_bins*sizeof(double),
+  cudaMemcpy(weight_tot, dev_weight, num_bins*num_bins*num_bins_phi*sizeof(double),
 	     cudaMemcpyDeviceToHost);
 
 
@@ -264,7 +272,7 @@ int main(int argc, char* argv[])
   // Output
 
     // Print out vartheta1, vartheta2, psi, binsize, Gtilde
-  double phi_binsize=(phi_max - phi_min)/num_bins;
+  double phi_binsize=(phi_max - phi_min)/num_bins_phi;
   double theta_binsize=log(theta_max/theta_min)/num_bins;
   
   for(int i=0; i<num_bins; i++)
@@ -285,7 +293,7 @@ int main(int argc, char* argv[])
 	  double deltaTheta2= exp(log(theta_min)+theta_binsize*(j+1))
 	    - exp(log(theta_min)+theta_binsize*j);
 	  
-	  for(int k=0; k<num_bins; k++)
+	  for(int k=0; k<num_bins_phi; k++)
 	    {
 	      // Phi Center of this bin
 	      double phi=(k+0.5)*phi_binsize + phi_min;

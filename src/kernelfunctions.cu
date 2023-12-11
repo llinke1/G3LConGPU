@@ -7,7 +7,8 @@ __global__ void g3lcong::addToGtilde(double *x1, double *y1, double *x2, double 
 									 double *w, double *omega, double sigma2,
 									 double omega_theta_min,
 									 double omega_theta_max,
-									 int num_bins, int N1, int N2, int NS,
+									 int num_bins, int num_bins_phi,
+									  int N1, int N2, int NS,
 									 double theta_min, double theta_max,
 									 double *Greal, double *Gimag,
 									 double *weight)
@@ -78,9 +79,9 @@ __global__ void g3lcong::addToGtilde(double *x1, double *y1, double *x2, double 
 				if (theta2 > theta_min)
 					indexY = floor(log(theta2 / theta_min) / theta_binwidth);
 
-				unsigned int index = indexX * num_bins * num_bins + indexY * num_bins + floor(0.5 * phi * num_bins / g3lcong::pi);
+				unsigned int index = indexX * num_bins * num_bins + indexY * num_bins + floor(0.5 * phi * num_bins_phi / g3lcong::pi);
 
-				if (indexX < num_bins && indexY < num_bins && index < num_bins * num_bins * num_bins)
+				if (indexX < num_bins && indexY < num_bins && index < num_bins * num_bins * num_bins_phi)
 				{
 					// Get Omega
 					double dx = x_gal1 - x_gal2; // x-distance between lenses [arcmin]
@@ -112,6 +113,8 @@ __global__ void g3lcong::addToGtilde(double *x1, double *y1, double *x2, double 
 
 					double cos_phase, sin_phase;
 					sincos(phi1 + phi2, &sin_phase, &cos_phase);
+					
+					omega_triplet=0;
 
 					// Get Contribution of Triplet (multiplied by 0.01 to avoid overflow)
 					double Greal_triplet = (1 + omega_triplet) * (-eps1 * cos_phase - eps2 * sin_phase) * w_galS * weightZ * 0.01;
@@ -252,7 +255,7 @@ __global__ void g3lcong::addToGtildePhysical(double *x1, double *y1, double *x2,
 											 double sigma_crit_z_max,
 											 double angular_distance_z_min,
 											 double angular_distance_z_max,
-											 int num_bins, int N1, int N2, int NS,
+											 int num_bins, int num_bins_phi, int N1, int N2, int NS,
 											 double r_min, double r_max,
 											 double *Greal, double *Gimag,
 											 double *weight)
@@ -338,7 +341,7 @@ __global__ void g3lcong::addToGtildePhysical(double *x1, double *y1, double *x2,
 				if (r2 > r_min)
 					indexY = floor(log(r2 / r_min) / r_binwidth);
 
-				unsigned int index = indexX * num_bins * num_bins + indexY * num_bins + floor(0.5 * phi * num_bins / g3lcong::pi);
+				unsigned int index = indexX * num_bins * num_bins + indexY * num_bins + floor(0.5 * phi * num_bins_phi / g3lcong::pi);
 
 				if (index < num_bins * num_bins * num_bins && indexX < num_bins && indexY < num_bins && phi < 2 * g3lcong::pi && SigCrit_triplet > 0)
 				{

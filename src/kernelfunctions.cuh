@@ -39,7 +39,7 @@ __global__ void addToGtilde(double* x1, double* y1, double* x2, double* y2,
 			    double* e1, double* e2,
 			    double *w, double *omega, double sigma2,
 			    double omega_theta_min, double omega_theta_max,
-			    int num_bins, int N1, int N2, int NS,
+			    int num_bins, int num_bins_phi, int N1, int N2, int NS,
 			    double theta_min, double theta_max,
 			    double *Greal, double *Gimag,
 			    double *weight);
@@ -131,7 +131,7 @@ __global__ void addToGtildePhysical(double* x1, double* y1, double* x2, double* 
 				    double sigma_crit_z_max,
 				    double angular_distance_z_min,
 				    double angular_distance_z_max,
-				    int num_bins, int N1, int N2, int NS,
+				    int num_bins, int num_bins_phi, int N1, int N2, int NS,
 				    double r_min, double r_max,
 				    double *Greal, double *Gimag,
 				    double *weight);

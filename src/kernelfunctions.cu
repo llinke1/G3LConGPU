@@ -79,7 +79,7 @@ __global__ void g3lcong::addToGtilde(double *x1, double *y1, double *x2, double 
 				if (theta2 > theta_min)
 					indexY = floor(log(theta2 / theta_min) / theta_binwidth);
 
-				unsigned int index = indexX * num_bins * num_bins + indexY * num_bins + floor(0.5 * phi * num_bins_phi / g3lcong::pi);
+				unsigned int index = indexX * num_bins * num_bins_phi + indexY * num_bins_phi + floor(0.5 * phi * num_bins_phi / g3lcong::pi);
 
 				if (indexX < num_bins && indexY < num_bins && index < num_bins * num_bins * num_bins_phi)
 				{
@@ -114,8 +114,8 @@ __global__ void g3lcong::addToGtilde(double *x1, double *y1, double *x2, double 
 					double cos_phase, sin_phase;
 					sincos(phi1 + phi2, &sin_phase, &cos_phase);
 					
-					omega_triplet=0;
-
+					// omega_triplet=0;
+					
 					// Get Contribution of Triplet (multiplied by 0.01 to avoid overflow)
 					double Greal_triplet = (1 + omega_triplet) * (-eps1 * cos_phase - eps2 * sin_phase) * w_galS * weightZ * 0.01;
 					double Gimag_triplet = (1 + omega_triplet) * (eps1 * sin_phase - eps2 * cos_phase) * w_galS * weightZ * 0.01;

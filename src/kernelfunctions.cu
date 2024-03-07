@@ -405,42 +405,46 @@ __global__ void g3lcong::addToGtildeIABiased(double *x1, double *y1, double *z1,
 											 double Pi, int N1, int N2, int NS, double r_min, double r_max, int num_bins,
 											 double *Greal, double *Gimag, double *weight)
 {
+
 	// global ID of this thread
 	int thread_index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	double r_binwidth = log(r_max / r_min) / num_bins; // log r binwidth
-
+	double r_binwidth = log(r_max / r_min) / num_bins;
 	for (int k = thread_index; k < NS; k += blockDim.x * gridDim.x)
 	{
-		// Get source positions
+		// Get source positions in arcmin
 		double x_galS = xS[k];
 		double y_galS = yS[k];
 		double eps1 = e1[k];
 		double eps2 = e2[k];
 		double z_galS = zS[k];
 
-		// Go through all lens1 galaxies
+		// Go through all lens1 galaxies in submatrix
 		for (int i = 0; i < N1; i++)
 		{
-			// Get positions of lens 1
+
+			// Get positions of lens 1 in arcmin
 			double x_gal1 = x1[i];
 			double y_gal1 = y1[i];
 			double z_gal1 = z1[i];
 
-			double dx1 = x_galS - x_gal1; // x-distance betw lens1 & source
-			double dy1 = y_galS - y_gal1; // y-distance betw lens1 & source
+			double dx1 = x_galS - x_gal1; // x-distance betw lens1 & source 
+			double dy1 = y_galS - y_gal1; // y-distance betw lens1 & source 
 			double dz1 = z_galS - z_gal1;
 
-			if (dz1 * dz1 > pi * pi)
-				continue; // If distance between lens and source is too big: ignore lens
+			if (dz1 * dz1 > Pi * Pi)
+				continue;
 
-			double r1 = sqrt(dx1 * dx1 + dy1 * dy1); // r1
+			double r1 = sqrt(dx1 * dx1 + dy1 * dy1); // theta 1 
 
 			if (r1 > r_max || r1 < r_min)
-				continue; // If projected separation between lens and source is larger than maximum r: ignore lens
+				continue;
 
-			double phi1 = atan2(dy1, dx1); // phase angle of r1
+			double phi1 = atan2(dy1, dx1); // phase angle of theta1
+			// Get index for Gtilde in logarithmic binning
+			int indexX = floor(log(r1 / r_min) / r_binwidth);
 
+			// Go through all lens2 galaxies in submatrix
 			for (int j = 0; j < N2; j++)
 			{
 				// Get positions of lens 2 in arcmin
@@ -448,50 +452,58 @@ __global__ void g3lcong::addToGtildeIABiased(double *x1, double *y1, double *z1,
 				double y_gal2 = y2[j];
 				double z_gal2 = z2[j];
 
-				double dx2 = x_galS - x_gal2; // x-distance betw lens2 & source [arcmin]
-				double dy2 = y_galS - y_gal2; // y-distance betw lens2 & source [arcmin]
+				double dx2 = x_galS - x_gal2; // x-distance betw lens2 & source
+				double dy2 = y_galS - y_gal2; // y-distance betw lens2 & source
 				double dz2 = z_galS - z_gal2;
+				if (dz2 * dz2 > Pi * Pi)
+					continue;
 
-				if (dz2 * dz2 > pi * pi)
-					continue; // If distance between lens and source is too big: ignore lens
-
-				double r2 = sqrt(dx2 * dx2 + dy2 * dy2); // r2 [arcmin]
+				double r2 = sqrt(dx2 * dx2 + dy2 * dy2); // theta 2
 
 				if (r2 > r_max || r2 < r_min)
-					continue; // If projected separation between lens and source is larger than maximum r: ignore lens
+					continue;
 
-				double phi2 = atan2(dy2, dx2); // phase angle of r2
+				double phi2 = atan2(dy2, dx2); // phase angle of theta2
+
+				// Get index for Gtilde in logarithmic binning
+				int indexY = floor(log(r2 / r_min) / r_binwidth);
 
 				// Get phi
+				double phi;
+
 				// dot = \vec{theta1}\dot\vec{theta2} = theta1*theta2*cos(phi)
 				double dot = dx1 * dx2 + dy1 * dy2;
 				// det = \vec{theta1}\cross\vec{theta2} = theta1*theta2*sin(phi)
 				double det = dx1 * dy2 - dx2 * dy1;
 
-				double phi = atan2(det, dot); // angle between lens-source separations
+				// atan2(x,y) returns angle alpha for which x=sin(alpha) and
+				// y=cos(alpha)
+				phi = atan2(det, dot);
 
 				// atan2 returns angle in [-pi, pi], we want [0,2pi]
 				if (phi < 0)
 					phi += 2 * M_PI;
 
-				// Get index for Gtilde in logarithmic binning
-				int indexX = floor(log(r1 / r_min) / r_binwidth);
-
-				int indexY = floor(log(r2 / r_min) / r_binwidth);
 
 				unsigned int index = indexX * num_bins * num_bins + indexY * num_bins + floor(0.5 * phi * num_bins / M_PI);
 
-				double cos_phase, sin_phase;
-				sincos(phi1 + phi2, &sin_phase, &cos_phase);
+				if (indexX < num_bins && indexY < num_bins && index < num_bins * num_bins * num_bins)
+				{
 
-				// Get Contribution of Triplet (multiplied by 0.01 to avoid overflow)
-				double Greal_triplet = (-eps1 * cos_phase - eps2 * sin_phase) * 0.01;
-				double Gimag_triplet = (eps1 * sin_phase - eps2 * cos_phase) * 0.01;
+					// Get Phase Angle (Phi_i+Phi_j)
 
-				// Add Triplet contribution
-				atomicAdd(&Greal[index], Greal_triplet);
-				atomicAdd(&Gimag[index], Gimag_triplet);
-				atomicAdd(&weight[index], 0.01);
+					double cos_phase, sin_phase;
+					sincos(phi1 + phi2, &sin_phase, &cos_phase);
+
+					// Get Contribution of Triplet (multiplied by 0.01 to avoid overflow)
+					double Greal_triplet = (-eps1 * cos_phase - eps2 * sin_phase) * 0.01;
+					double Gimag_triplet = (eps1 * sin_phase - eps2 * cos_phase) * 0.01;
+
+					// Add Triplet contribution
+					atomicAdd(&Greal[index], Greal_triplet);
+					atomicAdd(&Gimag[index], Gimag_triplet);
+					atomicAdd(&weight[index], 0.01);
+				}
 			}
 		}
 	}

@@ -8,6 +8,8 @@
 #define BLOCKS
 #define THREADS
 
+
+
 int g3lcong::readLenses2Dev(std::string filename,  const int& total_columns,
 			    const int& col_x, const int& col_y,
 			    const int& col_z, std::vector<double>& x,

@@ -1,5 +1,6 @@
 #include "kernelfunctions.cuh"
 #include "constants.h"
+#include <cuComplex.h>
 
 __global__ void g3lcong::addToGtilde(double *x1, double *y1, double *x2, double *y2,
 									 double *xS, double *yS, double *z1, double *z2,
@@ -8,7 +9,7 @@ __global__ void g3lcong::addToGtilde(double *x1, double *y1, double *x2, double 
 									 double omega_theta_min,
 									 double omega_theta_max,
 									 int num_bins, int num_bins_phi,
-									  int N1, int N2, int NS,
+									 int N1, int N2, int NS,
 									 double theta_min, double theta_max,
 									 double *Greal, double *Gimag,
 									 double *weight)
@@ -113,9 +114,9 @@ __global__ void g3lcong::addToGtilde(double *x1, double *y1, double *x2, double 
 
 					double cos_phase, sin_phase;
 					sincos(phi1 + phi2, &sin_phase, &cos_phase);
-					
+
 					// omega_triplet=0;
-					
+
 					// Get Contribution of Triplet (multiplied by 0.01 to avoid overflow)
 					double Greal_triplet = (1 + omega_triplet) * (-eps1 * cos_phase - eps2 * sin_phase) * w_galS * weightZ * 0.01;
 					double Gimag_triplet = (1 + omega_triplet) * (eps1 * sin_phase - eps2 * cos_phase) * w_galS * weightZ * 0.01;
@@ -132,52 +133,56 @@ __global__ void g3lcong::addToGtilde(double *x1, double *y1, double *x2, double 
 }
 
 __global__ void g3lcong::addToGplusGminus(double *xL, double *yL, double *x1, double *y1,
-								 double *x2, double *y2, double *e11, double *e21, double *e12, double *e22,
-								 double *w1, double *w2,
-								 int num_bins, int NL, int N1, int N2,
-								 double theta_min, double theta_max,
-								 double *Gplus_real, double *Gplus_imag,
-								 double *Gminus_real, double *Gminus_imag,
-								 double *weight)
+										  double *x2, double *y2, double *e11, double *e21, double *e12, double *e22,
+										  double *w1, double *w2,
+										  int num_bins, int num_bins_phi, int NL, int N1, int N2,
+										  double theta_min, double theta_max,
+										  double *Gplus_real, double *Gplus_imag,
+										  double *Gminus_real, double *Gminus_imag,
+										  double *weight)
 {
 	// global ID of this thread
 	int thread_index = blockIdx.x * blockDim.x + threadIdx.x;
 	double theta_binwidth = log(theta_max / theta_min) / num_bins;
 
-	for (int k = thread_index; k < NL; k += blockDim.x * gridDim.x)
+	for (int k = thread_index; k < N1; k += blockDim.x * gridDim.x)
 	{
-		// Get lens positions in arcmin
-		double x_galL = xL[k];
-		double y_galL = yL[k];
+		// Get positions of source 1 in arcmin
+		double x_gal1 = x1[k];
+		double y_gal1 = y1[k];
+
+		double eps11 = e11[k];
+		double eps21 = e21[k];
+
+		double weight1 = w1[k];
+
+		cuDoubleComplex shear1 = make_cuDoubleComplex(weight1*eps11, weight1*eps21);
 
 		// Go through all source1 galaxies in submatrix
-		for (int i = 0; i < N1; i++)
+		for (int i = 0; i < N2; i++)
 		{
 
-			// Get positions of source 1 in arcmin
-			double x_gal1 = x1[i];
-			double y_gal1 = y1[i];
+			// Get positions of lens 2 in arcmin
+			double x_gal2 = x2[i];
+			double y_gal2 = y2[i];
 
-			double eps11 = e11[i];
-			double eps21 = e21[i];
-
-			double weight1 = w1[i];
-
-			double dx1 = x_galL - x_gal1; // x-distance betw lens & source1 [arcmin]
-			double dy1 = y_galL - y_gal1; // y-distance betw lens & source1 [arcmin]
-
-			double theta1 = sqrt(dx1 * dx1 + dy1 * dy1); // theta 1 [arcmin]
+			double eps12 = e12[i];
+			double eps22 = e22[i];
+			double weight2 = w2[i];
+			cuDoubleComplex shear2 = make_cuDoubleComplex(weight2*eps12, weight2*eps22);
 
 			// Go through all source2 galaxies in submatrix
-			for (int j = 0; j < N2; j++)
+			for (int j = 0; j < NL; j++)
 			{
-				// Get positions of lens 2 in arcmin
-				double x_gal2 = x2[j];
-				double y_gal2 = y2[j];
 
-				double eps12 = e12[i];
-				double eps22 = e22[i];
-				double weight2 = w2[i];
+				// Get lens positions in arcmin
+				double x_galL = xL[j];
+				double y_galL = yL[j];
+
+				double dx1 = x_galL - x_gal1; // x-distance betw lens & source1 [arcmin]
+				double dy1 = y_galL - y_gal1; // y-distance betw lens & source1 [arcmin]
+
+				double theta1 = sqrt(dx1 * dx1 + dy1 * dy1); // theta 1 [arcmin]
 
 				double dx2 = x_galL - x_gal2; // x-distance betw lens2 & source [arcmin]
 				double dy2 = y_galL - y_gal2; // y-distance betw lens2 & source [arcmin]
@@ -210,9 +215,9 @@ __global__ void g3lcong::addToGplusGminus(double *xL, double *yL, double *x1, do
 				if (theta2 > theta_min)
 					indexY = floor(log(theta2 / theta_min) / theta_binwidth);
 
-				unsigned int index = indexX * num_bins * num_bins + indexY * num_bins + floor(0.5 * phi * num_bins / g3lcong::pi);
+				unsigned int index = indexX * num_bins * num_bins_phi + indexY * num_bins_phi + floor(0.5 * phi * num_bins_phi / g3lcong::pi);
 
-				if (indexX < num_bins && indexY < num_bins && index < num_bins * num_bins * num_bins)
+				if (indexX < num_bins && indexY < num_bins && index < num_bins * num_bins * num_bins_phi)
 				{
 
 					// Get Phase Angle (Phi_i+Phi_j)
@@ -220,15 +225,41 @@ __global__ void g3lcong::addToGplusGminus(double *xL, double *yL, double *x1, do
 					double phi1 = atan2(dy1, dx1); // phase angle of theta1
 					double phi2 = atan2(dy2, dx2); // phase angle of theta2
 
+					cuDoubleComplex phase_plus=make_cuDoubleComplex(cos(2*(phi2-phi1)), sin(2*(phi2-phi1)));
+					cuDoubleComplex phase_minus=make_cuDoubleComplex(cos(2*(phi1+phi2)), -sin(2*(phi1+phi2)));
+
+
+					cuDoubleComplex Gplus_triplet=cuCmul(shear1, cuConj(shear2));
+					Gplus_triplet=cuCmul(Gplus_triplet, phase_plus);
+
+					double Gplus_real_triplet=cuCreal(Gplus_triplet);
+					double Gplus_imag_triplet=cuCimag(Gplus_triplet);
+
+					cuDoubleComplex Gminus_triplet=cuCmul(shear1, shear2);
+					Gminus_triplet=cuCmul(Gminus_triplet, phase_minus);
+
+					double Gminus_real_triplet=cuCreal(Gminus_triplet);
+					double Gminus_imag_triplet=cuCimag(Gminus_triplet);
+
+					
+/*
 					double cos_phi1, sin_phi1, cos_phi2, sin_phi2;
+
 					sincos(2 * phi1, &sin_phi1, &cos_phi1);
 					sincos(2 * phi2, &sin_phi2, &cos_phi2);
 
-					double Gplus_real_triplet = (eps11 * eps21 + eps12 * eps22) * (cos_phi1 * cos_phi2 + sin_phi1 * sin_phi2) + (eps12 * eps21 - eps11 * eps22) * (cos_phi1 * sin_phi2 + sin_phi1 * cos_phi2);
-					double Gplus_imag_triplet = (eps12 * eps21 - eps11 * eps22) * (cos_phi1 * cos_phi2 + sin_phi1 * sin_phi2) - (eps11 * eps21 + eps12 * eps22) * (cos_phi1 * sin_phi2 + sin_phi1 * cos_phi2);
+					double Gplus_real_triplet = (eps11 * eps21 + eps12 * eps22) * (cos_phi1 * cos_phi2 + sin_phi1 * sin_phi2) - (eps12 * eps21 - eps11 * eps22) * (cos_phi1 * sin_phi2 - sin_phi1 * cos_phi2);
+					double Gplus_imag_triplet = (eps12 * eps21 - eps11 * eps22) * (cos_phi1 * cos_phi2 + sin_phi1 * sin_phi2) + (eps11 * eps21 + eps12 * eps22) * (cos_phi1 * sin_phi2 - sin_phi1 * cos_phi2);
 
-					double Gminus_real_triplet = (eps11 * eps21 - eps12 * eps22) * (cos_phi1 * cos_phi2 - sin_phi1 * sin_phi2) + (eps12 * eps21 + eps11 * eps22) * (-cos_phi1 * sin_phi2 + sin_phi1 * cos_phi2);
-					double Gminus_imag_triplet = (eps12 * eps21 + eps11 * eps22) * (cos_phi1 * cos_phi2 - sin_phi1 * sin_phi2) - (eps11 * eps21 - eps12 * eps22) * (-cos_phi1 * sin_phi2 + sin_phi1 * cos_phi2);
+					Gminus_real_triplet = (eps11 * eps21 - eps12 * eps22) * (cos_phi1 * cos_phi2 - sin_phi1 * sin_phi2) - (eps12 * eps21 + eps11 * eps22) * (-cos_phi1 * sin_phi2 - sin_phi1 * cos_phi2);
+					Gminus_imag_triplet = (eps12 * eps21 + eps11 * eps22) * (cos_phi1 * cos_phi2 - sin_phi1 * sin_phi2) + (eps11 * eps21 - eps12 * eps22) * (-cos_phi1 * sin_phi2 - sin_phi1 * cos_phi2);
+
+*/					// OLD:
+					// double Gplus_real_triplet = (eps11 * eps21 + eps12 * eps22) * (cos_phi1 * cos_phi2 + sin_phi1 * sin_phi2) + (eps12 * eps21 - eps11 * eps22) * (cos_phi1 * sin_phi2 + sin_phi1 * cos_phi2);
+					// double Gplus_imag_triplet = (eps12 * eps21 - eps11 * eps22) * (cos_phi1 * cos_phi2 + sin_phi1 * sin_phi2) - (eps11 * eps21 + eps12 * eps22) * (cos_phi1 * sin_phi2 + sin_phi1 * cos_phi2);
+
+					// double Gminus_real_triplet = (eps11 * eps21 - eps12 * eps22) * (cos_phi1 * cos_phi2 - sin_phi1 * sin_phi2) + (eps12 * eps21 + eps11 * eps22) * (-cos_phi1 * sin_phi2 + sin_phi1 * cos_phi2);
+					// double Gminus_imag_triplet = (eps12 * eps21 + eps11 * eps22) * (cos_phi1 * cos_phi2 - sin_phi1 * sin_phi2) - (eps11 * eps21 - eps12 * eps22) * (-cos_phi1 * sin_phi2 + sin_phi1 * cos_phi2);
 
 					// Add Triplet contribution
 					atomicAdd(&Gplus_real[index], weight1 * weight2 * Gplus_real_triplet * 0.01);
@@ -237,6 +268,7 @@ __global__ void g3lcong::addToGplusGminus(double *xL, double *yL, double *x1, do
 					atomicAdd(&Gminus_imag[index], weight1 * weight2 * Gminus_imag_triplet * 0.01);
 
 					atomicAdd(&weight[index], weight1 * weight2 * 0.01);
+					// printf("%d, %e\n", index, Gplus_real[index]);
 				}
 			}
 		}

@@ -22,10 +22,10 @@
 int main(int argc, char *argv[])
 {
 
-    int n_params = 2;                                                             // Expected number of params
-    std::string usage = "calculateNMM.x filename_Gplus / Gminus filename_Thetas"; // Usage description
+    int n_params = 3;                                                                         // Expected number of params
+    std::string usage = "calculateNMM.x filename_Gplus / Gminus filename_Thetas Tesselated?"; // Usage description
 
-    std::string example = "calculateNNM.x gplusgminus_allTiles/all.gplusgminus.dat thetas.dat"; // Example usage
+    std::string example = "calculateNNM.x gplusgminus_allTiles/all.gplusgminus.dat thetas.dat 0"; // Example usage
 
     // Check Number of CMD Line arguments
     g3lcong::checkCmdLine(argc, n_params, usage, example);
@@ -33,9 +33,10 @@ int main(int argc, char *argv[])
     // Reading in from commandline
     std::string filename_GplusGminus = argv[1]; // Name of File containing Gtilde
     std::string filename_Thetas = argv[2];      // Name of File with thetas for which NNMap shall be calculated
+    bool tesselation = std::stoi(argv[3]);      // Bool if Gtilde was tesselated or not (0 if not tesselated, 1 else)
 
     // Initializing Aperture Statistics and read in Gtilde
-    g3lcong::ApertureStatistics aperture_statistics(filename_GplusGminus, "gplusgminus");
+    g3lcong::ApertureStatistics aperture_statistics(filename_GplusGminus, tesselation, "gplusgminus");
 
     // Reading in Thetas for which NMap² should be calculated and do calculation
     std::ifstream input(filename_Thetas);
@@ -52,7 +53,9 @@ int main(int argc, char *argv[])
 
         // Print out Aperture Statistics
         std::cout << theta1 << " " << theta2 << " " << theta3 << " "
-                  << NMapMap << " " << NMperpMperp << " " << NMapMperp << std::endl;
+                  << NMapMap << " " << NMperpMperp << " " << NMapMperp <<" "
+                  << real(NMM) << " " << imag(NMM) << " "<< real(NMMstar) << " " <<imag(NMMstar) <<" "
+                  << std::endl;
     };
 
     return 0;

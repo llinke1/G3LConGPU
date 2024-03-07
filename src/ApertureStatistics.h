@@ -74,7 +74,7 @@ namespace g3lcong
     std::complex<double> A_NMM_star(const double &vartheta1, const double &vartheta2, const double &phi,
                                     const double &theta1, const double &theta2, const double &theta3, const double &a2, const double &bigT);
 
-    void readGplusGminus(std::string filename);
+    void readGplusGminus(std::string filename, bool tesselated);
 
   public:
     /// Empty Constructor

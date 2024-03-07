@@ -34,10 +34,10 @@ int main(int argc, char *argv[])
 {
   // Checking Command Line
 
-  int n_params = 8;                                                                                                                                                                           // Expected number of params
-  std::string usage = "calculateGplusGminus_gpu.x filename_sources filename_lenses1 filename_lenses2 theta_min theta_max num_bins flipE1? flipE2?"; // Usage description
+  int n_params = 9;                                                                                                                                                                           // Expected number of params
+  std::string usage = "calculateGplusGminus_gpu.x filename_sources filename_lenses1 filename_lenses2 theta_min theta_max num_bins num_bins_phiz flipE1? flipE2?"; // Usage description
 
-  std::string example = "calculateGplusGminus_gpu.x  ../../Data/KIDS_129.0_-0.5.sources.dat ../../Data/KIDS_129.0_-0.5.objects.dat ../../Data/KIDS_129.0_-0.5.objects.dat 0.15 79.9 300 0 0"; // Example usage
+  std::string example = "calculateGplusGminus_gpu.x  ../../Data/KIDS_129.0_-0.5.sources.dat ../../Data/KIDS_129.0_-0.5.objects.dat ../../Data/KIDS_129.0_-0.5.objects.dat 0.15 79.9 300 300 0 0"; // Example usage
 
   // Check Number of CMD Line arguments
   g3lcong::checkCmdLine(argc, n_params, usage, example);
@@ -50,11 +50,12 @@ int main(int argc, char *argv[])
   double theta_min = std::stod(argv[4]); // Min Theta for calc of Gtilde [arcmin]
   double theta_max = std::stod(argv[5]); // Max Theta for calc of Gtilde [arcmin]
   int num_bins = std::stoi(argv[6]);     // Number of Bins for Gtilde on ONE axis
+  int num_bins_phi= std::stoi(argv[7]); // Number of phi-bins
 
   bool flipE1 = false;
-  flipE1 = std::stoi(argv[7]); // If 1: Sign of ellipticity component 1 is flipped
+  flipE1 = std::stoi(argv[8]); // If 1: Sign of ellipticity component 1 is flipped
   bool flipE2 = false;
-  flipE2 = std::stoi(argv[8]);
+  flipE2 = std::stoi(argv[9]);
 
   double phi_min = 0.0;             // Min Phi for calc of Gtilde [radians]
   double phi_max = 2 * g3lcong::pi; // Max Phi for calc of Gtilde [radians]
@@ -122,68 +123,88 @@ int main(int argc, char *argv[])
   double *dev_Gplus_real, *dev_Gplus_imag, *dev_Gminus_real, *dev_Gminus_imag, *dev_weight;
 
   // Allocate memory for Gplus, Gminus, and weight on device
-  CUDA_SAFE_CALL(cudaMalloc(&dev_Gplus_real, num_bins * num_bins * num_bins * sizeof(double)));
-  CUDA_SAFE_CALL(cudaMalloc(&dev_Gplus_imag, num_bins * num_bins * num_bins * sizeof(double)));
-  CUDA_SAFE_CALL(cudaMalloc(&dev_Gminus_real, num_bins * num_bins * num_bins * sizeof(double)));
-  CUDA_SAFE_CALL(cudaMalloc(&dev_Gminus_imag, num_bins * num_bins * num_bins * sizeof(double)));
-  CUDA_SAFE_CALL(cudaMalloc(&dev_weight, num_bins * num_bins * num_bins * sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_Gplus_imag, num_bins * num_bins * num_bins_phi * sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_Gplus_real, num_bins * num_bins * num_bins_phi * sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_Gminus_real, num_bins * num_bins * num_bins_phi * sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_Gminus_imag, num_bins * num_bins * num_bins_phi * sizeof(double)));
+  CUDA_SAFE_CALL(cudaMalloc(&dev_weight, num_bins * num_bins * num_bins_phi * sizeof(double)));
 
   // Set Gtilde to 0 on device
-  CUDA_SAFE_CALL(cudaMemset(dev_Gplus_real, 0, num_bins * num_bins * num_bins * sizeof(double)));
-  CUDA_SAFE_CALL(cudaMemset(dev_Gplus_imag, 0, num_bins * num_bins * num_bins * sizeof(double)));
-  CUDA_SAFE_CALL(cudaMemset(dev_Gminus_real, 0, num_bins * num_bins * num_bins * sizeof(double)));
-  CUDA_SAFE_CALL(cudaMemset(dev_Gminus_imag, 0, num_bins * num_bins * num_bins * sizeof(double)));
-  CUDA_SAFE_CALL(cudaMemset(dev_weight, 0, num_bins * num_bins * num_bins * sizeof(double)));
+  CUDA_SAFE_CALL(cudaMemset(dev_Gplus_real, 0, num_bins * num_bins * num_bins_phi * sizeof(double)));
+  CUDA_SAFE_CALL(cudaMemset(dev_Gplus_imag, 0, num_bins * num_bins * num_bins_phi * sizeof(double)));
+  CUDA_SAFE_CALL(cudaMemset(dev_Gminus_real, 0, num_bins * num_bins * num_bins_phi * sizeof(double)));
+  CUDA_SAFE_CALL(cudaMemset(dev_Gminus_imag, 0, num_bins * num_bins * num_bins_phi * sizeof(double)));
+  CUDA_SAFE_CALL(cudaMemset(dev_weight, 0, num_bins * num_bins * num_bins_phi * sizeof(double)));
 
   g3lcong::addToGplusGminus<<<BLOCKS, THREADS>>>(dev_xL, dev_yL, dev_x1, dev_y1, dev_x2, dev_y2, dev_e11, dev_e21, dev_e12,
-                                                 dev_e22, dev_w1, dev_w2, num_bins, NL, N1, N2, theta_min, theta_max,
+                                                 dev_e22, dev_w1, dev_w2, num_bins, num_bins_phi, NL, N1, N2, theta_min, theta_max,
                                                  dev_Gplus_real, dev_Gplus_imag, dev_Gminus_real, dev_Gminus_imag, dev_weight);
 
   // Declare arrays for Gplus, Gminus and weight on host
   double *Gplus_real, *Gplus_imag, *Gminus_real, *Gminus_imag, *weight;
 
   // Allocate memory for Gplus, Gminus and weight on host
-  Gplus_real = (double *)malloc(num_bins * num_bins * num_bins * sizeof(double));
-  Gplus_imag = (double *)malloc(num_bins * num_bins * num_bins * sizeof(double));
-  Gminus_real = (double *)malloc(num_bins * num_bins * num_bins * sizeof(double));
-  Gminus_imag = (double *)malloc(num_bins * num_bins * num_bins * sizeof(double));
-  weight = (double *)malloc(num_bins * num_bins * num_bins * sizeof(double));
+  Gplus_real = (double *)malloc(num_bins * num_bins * num_bins_phi * sizeof(double));
+  Gplus_imag = (double *)malloc(num_bins * num_bins * num_bins_phi * sizeof(double));
+  Gminus_real = (double *)malloc(num_bins * num_bins * num_bins_phi * sizeof(double));
+  Gminus_imag = (double *)malloc(num_bins * num_bins * num_bins_phi * sizeof(double));
+  weight = (double *)malloc(num_bins * num_bins * num_bins_phi * sizeof(double));
 
   // Copy Gplus and Gminus from device to host
-  cudaMemcpy(Gplus_real, dev_Gplus_real, num_bins * num_bins * num_bins * sizeof(double), cudaMemcpyDeviceToHost);
-  cudaMemcpy(Gplus_imag, dev_Gplus_imag, num_bins * num_bins * num_bins * sizeof(double), cudaMemcpyDeviceToHost);
-  cudaMemcpy(Gminus_real, dev_Gminus_real, num_bins * num_bins * num_bins * sizeof(double), cudaMemcpyDeviceToHost);
-  cudaMemcpy(Gminus_imag, dev_Gminus_imag, num_bins * num_bins * num_bins * sizeof(double), cudaMemcpyDeviceToHost);
-  cudaMemcpy(weight, dev_weight, num_bins * num_bins * num_bins * sizeof(double), cudaMemcpyDeviceToHost);
+  cudaMemcpy(Gplus_real, dev_Gplus_real, num_bins * num_bins * num_bins_phi * sizeof(double), 
+  cudaMemcpyDeviceToHost);
+  cudaMemcpy(Gplus_imag, dev_Gplus_imag, num_bins * num_bins * num_bins_phi * sizeof(double), 
+  cudaMemcpyDeviceToHost);
+  cudaMemcpy(Gminus_real, dev_Gminus_real, num_bins * num_bins * num_bins_phi * sizeof(double), 
+  cudaMemcpyDeviceToHost);
+  cudaMemcpy(Gminus_imag, dev_Gminus_imag, num_bins * num_bins * num_bins_phi * sizeof(double), 
+  cudaMemcpyDeviceToHost);
+  cudaMemcpy(weight, dev_weight, num_bins * num_bins * num_bins_phi * sizeof(double), 
+  cudaMemcpyDeviceToHost);
 
   // Output
 
   // Print out vartheta1, vartheta2, psi, binsize, Gplus Gminus
-  double phi_binsize = (phi_max - phi_min) / num_bins;
+  double phi_binsize = (phi_max - phi_min) / num_bins_phi;
   double theta_binsize = log(theta_max / theta_min) / num_bins;
+
+  std::vector<double> bin_centers_theta;
+  std::vector<double> newbin_edges_theta;
+  for (int i = 0; i < num_bins; i++)
+  {
+    bin_centers_theta.push_back(0.5 * (exp(log(theta_min) + theta_binsize * (i + 1)) + exp(log(theta_min) + theta_binsize * i)));
+  }
+
+  newbin_edges_theta.push_back(theta_min);
+  for (int i = 0; i < num_bins - 1; i++)
+  {
+    newbin_edges_theta.push_back(0.5 * (bin_centers_theta[i + 1] + bin_centers_theta[i]));
+  }
+  newbin_edges_theta.push_back(theta_max);
 
   for (int i = 0; i < num_bins; i++)
   {
     // Theta1 Center of this bin
-    double theta1 = 0.5 * (exp(log(theta_min) + theta_binsize * (i + 1)) + exp(log(theta_min) + theta_binsize * i));
+    double theta1 = bin_centers_theta[i];
     // Theta1 Binsize of this bin
-    double deltaTheta1 = exp(log(theta_min) + theta_binsize * (i + 1)) - exp(log(theta_min) + theta_binsize * i);
+    double deltaTheta1 = newbin_edges_theta[i + 1] - newbin_edges_theta[i];
 
     for (int j = 0; j < num_bins; j++)
     {
       // Theta2 Center of this bin
-      double theta2 = 0.5 * (exp(log(theta_min) + theta_binsize * (j + 1)) + exp(log(theta_min) + theta_binsize * j));
-      // Theta2 Binsize of this bin
-      double deltaTheta2 = exp(log(theta_min) + theta_binsize * (j + 1)) - exp(log(theta_min) + theta_binsize * j);
+      double theta2 = bin_centers_theta[j];
 
-      for (int k = 0; k < num_bins; k++)
+      // Theta2 Binsize of this bin
+      double deltaTheta2 = newbin_edges_theta[j + 1] - newbin_edges_theta[j];
+
+      for (int k = 0; k < num_bins_phi; k++)
       {
         // Phi Center of this bin
         double phi = (k + 0.5) * phi_binsize + phi_min;
 
-        int index = i * num_bins * num_bins + j * num_bins + k;
+        int index = i * num_bins * num_bins_phi + j * num_bins_phi + k;
 
-        // Weight
+                // Weight
         double weight_ = weight[index];
         // Gplus real
         double Gplus_real_ = Gplus_real[index];
@@ -217,15 +238,17 @@ int main(int argc, char *argv[])
             << deltaTheta1 << " " // bin size theta 1[arcmin]
             << deltaTheta2 << " " // bin size theta 2[arcmin]
             << phi_binsize << " " // phi bin size [radians]
-            << Gplus_real << " "  // Real part of Gplus [dimensionless]
-            << Gplus_imag << " "  // Imaginary part of Gtilde [dimensionless]
-            << Gminus_real << " " // Real part of Gplus [dimensionless]
-            << Gminus_imag << " " // Imaginary part of Gtilde [dimensionless]
-            << weight             // Weight of Gtilde [dimensionless]
+            << Gplus_real_ << " "  // Real part of Gplus [dimensionless]
+            << Gplus_imag_ << " "  // Imaginary part of Gtilde [dimensionless]
+            << Gminus_real_ << " " // Real part of Gplus [dimensionless]
+            << Gminus_imag_ << " " // Imaginary part of Gtilde [dimensionless]
+            << weight_             // Weight of Gtilde [dimensionless]
             << std::endl;
       };
     };
   };
+
+
 
   return 0;
 }

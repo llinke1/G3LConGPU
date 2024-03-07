@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
   bool tesselation = std::stoi(argv[3]); //Bool if Gtilde was tesselated or not (0 if not tesselated, 1 else)
 
   //Initializing Aperture Statistics and read in Gtilde
-  g3lcong::ApertureStatistics aperture_statistics(filename_Gtilde, tesselation);
+  g3lcong::ApertureStatistics aperture_statistics(filename_Gtilde, tesselation, "gtilde");
   
   // Reading in Thetas for which N2Map should be calculated and do calculation
   std::ifstream input(filename_Thetas);

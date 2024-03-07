@@ -56,11 +56,12 @@ std::complex<double> g3lcong::ApertureStatistics::A_NMM(const double &vartheta1,
   std::complex<double> g1 = vartheta1 - .5 * a2 * (vartheta1 / theta3 / theta3 + vartheta2 / eiphi3 / theta2 / theta2);
   std::complex<double> g2 = vartheta2 - .5 * a2 * (vartheta2 / theta2 / theta2 + vartheta1 * eiphi3 / theta3 / theta3);
 
-  double c = a2 / 2 * sqrt(vartheta1 * vartheta1 / theta3 / theta3 + vartheta2 * vartheta2 / theta2 / theta2 + 2 * vartheta1 * vartheta2 * cos(phi) / theta3 / theta3 / theta2 / theta2);
+  double c = a2 / 2 * sqrt(vartheta1 * vartheta1 / theta3 / theta3 / theta3 / theta3 + vartheta2 * vartheta2 / theta2 / theta2 / theta2 / theta2 + 2 * vartheta1 * vartheta2 * cos(phi) / theta3 / theta3 / theta2 / theta2);
 
   std::complex<double> ANMM = g1 * g2 * (theta1 * theta1 / theta3 / theta3 + theta1 * theta1 / theta2 / theta2 - c * c / a2);
   ANMM += 2. * (g2 * vartheta1 + g1 * vartheta2 - g1 * g2 - g1 * g2);
-  ANMM *= g1 * g2 * exp(-real(b0)) / (72. * 3.1416 * bigT * bigT);
+  ANMM *= g1 * g2 * exp(-(b0)) / (72. * 3.1416 * bigT * bigT);
+  
 
   return ANMM;
 }
@@ -79,9 +80,10 @@ std::complex<double> g3lcong::ApertureStatistics::A_NMM_star(const double &varth
   std::complex<double> g1 = vartheta1 - .5 * a2 * (vartheta1 / theta3 / theta3 + vartheta2 / eiphi3 / theta2 / theta2);
   std::complex<double> g2 = vartheta2 - .5 * a2 * (vartheta2 / theta2 / theta2 + vartheta1 * eiphi3 / theta3 / theta3);
 
-  double c = a2 / 2 * sqrt(vartheta1 * vartheta1 / theta3 / theta3 + vartheta2 * vartheta2 / theta2 / theta2 + 2 * vartheta1 * vartheta2 * cos(phi) / theta3 / theta3 / theta2 / theta2);
+  double c = a2 / 2 * sqrt(vartheta1 * vartheta1 / theta3 / theta3 / theta3 / theta3 + vartheta2 * vartheta2 / theta2 / theta2 / theta2 / theta2 + 2 * vartheta1 * vartheta2 * cos(phi) / theta3 / theta3 / theta2 / theta2);
 
-  std::complex<double> ANMM_star = 2. * (vartheta1 * conj(g2) + vartheta2 * g1 - 2. * g1 * g2) * (g1 * conj(g2) + 2 * a2 * emiphi3);
+
+  std::complex<double> ANMM_star = 2. * (vartheta1 * conj(g2) + vartheta2 * g1 - 2. * g1 * conj(g2)) * (g1 * conj(g2) + 2 * a2 * emiphi3);
   ANMM_star += 2. * a2 * (2 * theta1 * theta1 - c * c - 3 * a2) * em2iphi3;
   ANMM_star += 4. * g1 * conj(g2) * (2 * theta1 * theta1 - c * c - 2 * a2) * emiphi3;
   ANMM_star += g1 * g1 * conj(g2) * conj(g2) / a2 * (2 * theta1 * theta1 - c * c - a2);
@@ -90,7 +92,7 @@ std::complex<double> g3lcong::ApertureStatistics::A_NMM_star(const double &varth
   return ANMM_star;
 }
 
-void g3lcong::ApertureStatistics::readGplusGminus(std::string filename)
+void g3lcong::ApertureStatistics::readGplusGminus(std::string filename, bool tesselated)
 {
   std::ifstream input(filename);
 
@@ -99,18 +101,35 @@ void g3lcong::ApertureStatistics::readGplusGminus(std::string filename)
     std::cerr << "ApertureStatistics::readGplusGminus: Couldn't open file " << filename << " .Exiting\n";
     exit(1);
   };
-
-  double val1, val2, val3, val4, val5, val6, val7, val8, val9, val10, val11;
-  while (input >> val1 >> val2 >> val3 >> val4 >> val5 >> val6 >> val7 >> val8 >> val9 >> val10 >> val11)
+  if(tesselated)
   {
-    vartheta1_.push_back(val1);
-    vartheta2_.push_back(val2);
-    phi_.push_back(val3);
-    V_.push_back(val4 * val5 * val6);
-    std::complex<double> Gpl(val7, val8);
-    Gplus_.push_back(Gpl);
-    std::complex<double> Gmi(val9, val10);
-    Gminus_.push_back(Gmi);
+    double val1, val2, val3, val4, val5, val6, val7, val8, val9;
+    while (input >> val1 >> val2 >> val3 >> val4 >> val5 >> val6 >> val7 >> val8 >> val9)
+    {
+      vartheta1_.push_back(val1);
+      vartheta2_.push_back(val2);
+      phi_.push_back(val3);
+      V_.push_back(val4 );
+      std::complex<double> Gpl(val5, val6);
+      Gplus_.push_back(Gpl);
+      std::complex<double> Gmi(val7, val8);
+      Gminus_.push_back(Gmi);
+    };
+  }
+  else
+  {
+    double val1, val2, val3, val4, val5, val6, val7, val8, val9, val10, val11;
+    while (input >> val1 >> val2 >> val3 >> val4 >> val5 >> val6 >> val7 >> val8 >> val9 >> val10 >> val11)
+    {
+      vartheta1_.push_back(val1);
+      vartheta2_.push_back(val2);
+      phi_.push_back(val3);
+      V_.push_back(val4 * val5 * val6);
+      std::complex<double> Gpl(val7, val8);
+      Gplus_.push_back(Gpl);
+      std::complex<double> Gmi(val9, val10);
+      Gminus_.push_back(Gmi);
+    };
   };
 }
 
@@ -158,7 +177,7 @@ g3lcong::ApertureStatistics::ApertureStatistics(std::string filenameGtilde, bool
   if (type == "gtilde")
     readGtilde(filenameGtilde, tesselated);
   else if (type == "gplusgminus")
-    readGplusGminus(filenameGtilde);
+    readGplusGminus(filenameGtilde, tesselated);
   else
   {
     std::cerr << "ApertureStatistics::ApertureStatistics: Wrong type for correlation function read in" << std::endl;
@@ -194,10 +213,10 @@ std::complex<double> g3lcong::ApertureStatistics::NMM(const double &theta1, cons
   // Calculate NNM
   std::complex<double> result(0., 0.);
 
-  for (unsigned int i = 0; i < Gplus_.size(); i++)
+  for (unsigned int i = 0; i < Gminus_.size(); i++)
   {
 
-    result += A_NMM(vartheta1_.at(i), vartheta2_.at(i), phi_.at(i), theta1, theta2, theta3, a, Theta8) * Gplus_.at(i) * V_.at(i) * vartheta1_.at(i) * vartheta2_.at(i);
+    result += A_NMM(vartheta1_.at(i), vartheta2_.at(i), phi_.at(i), theta1, theta2, theta3, a, Theta8) * Gminus_.at(i) * V_.at(i) * vartheta1_.at(i) * vartheta2_.at(i);
   }
 
   return result;
@@ -212,10 +231,10 @@ std::complex<double> g3lcong::ApertureStatistics::NMMstar(const double &theta1, 
   // Calculate NNM
   std::complex<double> result(0., 0.);
 
-  for (unsigned int i = 0; i < Gminus_.size(); i++)
+  for (unsigned int i = 0; i < Gplus_.size(); i++)
   {
 
-    result += A_NMM_star(vartheta1_.at(i), vartheta2_.at(i), phi_.at(i), theta1, theta2, theta3, a, Theta8) * Gminus_.at(i) * V_.at(i) * vartheta1_.at(i) * vartheta2_.at(i);
+    result += A_NMM_star(vartheta1_.at(i), vartheta2_.at(i), phi_.at(i), theta1, theta2, theta3, a, Theta8) * Gplus_.at(i) * V_.at(i) * vartheta1_.at(i) * vartheta2_.at(i);
   }
 
   return result;

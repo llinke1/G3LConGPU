@@ -146,6 +146,7 @@ __global__ void g3lcong::addToGplusGminus(double *xL, double *yL, double *x1, do
 	double theta_binwidth = log(theta_max / theta_min) / num_bins;
 
 	for (int k = thread_index; k < N1; k += blockDim.x * gridDim.x)
+	for (int k = thread_index; k < N1; k += blockDim.x * gridDim.x)
 	{
 		// Get positions of source 1 in arcmin
 		double x_gal1 = x1[k];
@@ -160,8 +161,12 @@ __global__ void g3lcong::addToGplusGminus(double *xL, double *yL, double *x1, do
 
 		// Go through all source1 galaxies in submatrix
 		for (int i = 0; i < N2; i++)
+		for (int i = 0; i < N2; i++)
 		{
 
+			// Get positions of lens 2 in arcmin
+			double x_gal2 = x2[i];
+			double y_gal2 = y2[i];
 			// Get positions of lens 2 in arcmin
 			double x_gal2 = x2[i];
 			double y_gal2 = y2[i];
@@ -181,7 +186,10 @@ __global__ void g3lcong::addToGplusGminus(double *xL, double *yL, double *x1, do
 
 				double dx1 = x_galL - x_gal1; // x-distance betw lens & source1 [arcmin]
 				double dy1 = y_galL - y_gal1; // y-distance betw lens & source1 [arcmin]
+				double dx1 = x_galL - x_gal1; // x-distance betw lens & source1 [arcmin]
+				double dy1 = y_galL - y_gal1; // y-distance betw lens & source1 [arcmin]
 
+				double theta1 = sqrt(dx1 * dx1 + dy1 * dy1); // theta 1 [arcmin]
 				double theta1 = sqrt(dx1 * dx1 + dy1 * dy1); // theta 1 [arcmin]
 
 				double dx2 = x_galL - x_gal2; // x-distance betw lens2 & source [arcmin]
@@ -269,6 +277,8 @@ __global__ void g3lcong::addToGplusGminus(double *xL, double *yL, double *x1, do
 
 					atomicAdd(&weight[index], weight1 * weight2 * 0.01);
 					// printf("%d, %e\n", index, Gplus_real[index]);
+					// printf("%d, %e\n", index, Gplus_real[index]);
+
 				}
 			}
 		}

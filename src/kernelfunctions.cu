@@ -40,6 +40,12 @@ __global__ void g3lcong::addToGtilde(double *x1, double *y1, double *x2, double 
 
 			double theta1 = sqrt(dx1 * dx1 + dy1 * dy1); // theta 1 [arcmin]
 
+			if(theta1 > theta_max || theta1 < theta_min)
+				continue;
+
+				// Get index for Gtilde in logarithmic binning
+			int indexX = floor(log(theta1 / theta_min) / theta_binwidth);
+			
 			// Go through all lens2 galaxies in submatrix
 			for (int j = 0; j < N2; j++)
 			{
@@ -68,15 +74,8 @@ __global__ void g3lcong::addToGtilde(double *x1, double *y1, double *x2, double 
 				if (phi < 0)
 					phi += 2 * g3lcong::pi;
 
-				// Get index for Gtilde in logarithmic binning
-				int indexX = 0;
 
-				if (theta1 > theta_min)
-					indexX = floor(log(theta1 / theta_min) / theta_binwidth);
-
-				int indexY = 0;
-				if (theta2 > theta_min)
-					indexY = floor(log(theta2 / theta_min) / theta_binwidth);
+				int indexY = floor(log(theta2 / theta_min) / theta_binwidth);
 
 				unsigned int index = indexX * num_bins * num_bins + indexY * num_bins + floor(0.5 * phi * num_bins / g3lcong::pi);
 

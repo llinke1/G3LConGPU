@@ -136,61 +136,86 @@ __global__ void addToGtildePhysical(double* x1, double* y1, double* x2, double* 
 				    double *Greal, double *Gimag,
 				    double *weight);
 
+	/**
+	 * Kernel function, which updates the paircount with or w/o z weighting
+	 * Function is executed for each thread and updates paircount
+	 * Paircount is stored in global (not shared) memory
+	 *
+	 * @param x1 x-coordinates of lens1 galaxies [arcmin], stored on device
+	 * @param y1 y-coordinates of lens1 galaxies [arcmin], stored on device
+	 * @param x2 x-coordinates of lens2 galaxies [arcmin], stored on device
+	 * @param y2 y-coordinates of lens2 galaxies [arcmin], stored on device
+	 * @param z1 redshift of lens1 galaxies, stored on device
+	 * @param z2 redshift of lens2 galaxies, stored on device
+	 * @param N1 Number of lens 1 galaxies
+	 * @param N2 Number of lens 2 galaxies
+	 * @param theta_min Minimal Theta [arcmin]
+	 * @param theta_max Maximal Theta [arcmin]
+	 * @param num_bins Number of bins for omega
+	 * @param sigma2 Square of stddev of z weighting
+	 * @param paircount Storage for paircount on global memory
+	 */
+	__global__ void addToPaircount(double *x1, double *y1, double *x2, double *y2,
+								   double *z1, double *z2, int N1, int N2,
+								   int num_bins,
+								   double theta_min, double binwidth, double sigma2,
+								   double *paircount);
 
+	/**
+	 * Kernel function, which updates the triplecount
+	 * Function is executed for each thread and updates triplecount
+	 * Triplecount is stored in global (not shared) memory
+	 *
+	 * @param x1 x-coordinates of lens1 galaxies [arcmin], stored on device
+	 * @param y1 y-coordinates of lens1 galaxies [arcmin], stored on device
+	 * @param z1 redshift of lens1 galaxies, stored on device
+	 * @param x2 x-coordinates of lens2 galaxies [arcmin], stored on device
+	 * @param y2 y-coordinates of lens2 galaxies [arcmin], stored on device
+	 * @param z2 redshift of lens3 galaxies, stored on device
+	 * @param x3 x-coordinates of lens3 galaxies [arcmin], stored on device
+	 * @param y3 y-coordinates of lens3 galaxies [arcmin], stored on device
+	 * @param N1 Number of lens 1 galaxies
+	 * @param N2 Number of lens 2 galaxies
+	 * @param N3 Number of lens 3 galaxies
+	 * @param num_bins Number of bins for Triplecount
+	 * @param r_min minimal rp or pi [same unit as Dcom]
+	 * @param r_binwidth logarithmic binwidth of rp/pi
+	 * @param Dcom Precomputed comoving distance [Probably Mpc] (on device!)
+	 * @param z_min Minimal z for Dcom
+	 * @param z_binwidth binwidth of z for Dcom
+	 * @param triplecount Storage for triplecount on global memory
+	 */
+	__global__ void addToTriplecount(double *x1, double *y1, double *z1, double *x2, double *y2, double *z2, double *x3, double *y3, double *z3, int N1, int N2, int N3, int num_bins, double r_min, double r_binwidth, double *Dcom, double z_min, double z_binwidth, int *triplecount);
 
-
-/**
- * Kernel function, which updates the paircount with or w/o z weighting
- * Function is executed for each thread and updates paircount 
- * Paircount is stored in global (not shared) memory
- *
- * @param x1 x-coordinates of lens1 galaxies [arcmin], stored on device
- * @param y1 y-coordinates of lens1 galaxies [arcmin], stored on device
- * @param x2 x-coordinates of lens2 galaxies [arcmin], stored on device
- * @param y2 y-coordinates of lens2 galaxies [arcmin], stored on device
- * @param z1 redshift of lens1 galaxies, stored on device
- * @param z2 redshift of lens2 galaxies, stored on device
- * @param N1 Number of lens 1 galaxies
- * @param N2 Number of lens 2 galaxies
- * @param theta_min Minimal Theta [arcmin]
- * @param theta_max Maximal Theta [arcmin]
- * @param num_bins Number of bins for omega
- * @param sigma2 Square of stddev of z weighting
- * @param paircount Storage for paircount on global memory
- */
-__global__ void addToPaircount(double* x1, double* y1, double* x2, double* y2,
-			       double* z1, double* z2, int N1, int N2,
-			       int num_bins,
-			       double theta_min, double binwidth, double sigma2,
-			       double* paircount);
-
-
-/**
- * Kernel function, which updates the triplecount 
- * Function is executed for each thread and updates triplecount 
- * Triplecount is stored in global (not shared) memory
- *
- * @param x1 x-coordinates of lens1 galaxies [arcmin], stored on device
- * @param y1 y-coordinates of lens1 galaxies [arcmin], stored on device
- * @param z1 redshift of lens1 galaxies, stored on device
- * @param x2 x-coordinates of lens2 galaxies [arcmin], stored on device
- * @param y2 y-coordinates of lens2 galaxies [arcmin], stored on device
- * @param z2 redshift of lens3 galaxies, stored on device
- * @param x3 x-coordinates of lens3 galaxies [arcmin], stored on device
- * @param y3 y-coordinates of lens3 galaxies [arcmin], stored on device
- * @param N1 Number of lens 1 galaxies
- * @param N2 Number of lens 2 galaxies
- * @param N3 Number of lens 3 galaxies
- * @param num_bins Number of bins for Triplecount
- * @param r_min minimal rp or pi [same unit as Dcom]
- * @param r_binwidth logarithmic binwidth of rp/pi
- * @param Dcom Precomputed comoving distance [Probably Mpc] (on device!)
- * @param z_min Minimal z for Dcom
- * @param z_binwidth binwidth of z for Dcom
- * @param triplecount Storage for triplecount on global memory
- */
-  __global__ void addToTriplecount(double* x1, double* y1, double* z1, double* x2, double* y2, double* z2, double* x3, double* y3, double* z3, int N1, int N2, int N3, int num_bins, double r_min, double r_binwidth, double *Dcom, double z_min, double z_binwidth, int* triplecount); 
-
-  
+	/**
+	 * @brief Kernel function which updates Gtilde_IA, uncorrected for the second-order correlation
+	 * Function updates Greal, Gimag and weight
+	 *
+	 * @param x1 x-coordinates of lens1 galaxies [physical units, i.e. Mpc], stored on device
+	 * @param y1 y-coordinates of lens1 galaxies [physical units, i.e. Mpc], stored on device
+	 * @param z1 z-coordinates of lens1 galaxies [physical units, i.e. Mpc], stored on device
+	 * @param x2 x-coordinates of lens2 galaxies [physical units, i.e. Mpc], stored on device
+	 * @param y2 y-coordinates of lens2 galaxies [physical units, i.e. Mpc], stored on device
+	 * @param z2 z-coordinates of lens2 galaxies [physical units, i.e. Mpc], stored on device
+	 * @param xS x-coordinates of shape galaxies [physical units, i.e. Mpc], stored on device
+	 * @param yS y-coordinates of shape galaxies [physical units, i.e. Mpc], stored on device
+	 * @param zS z-coordinates of shape galaxies [physical units, i.e. Mpc], stored on device
+	 * @param e1 First ellipticity components, stored on device
+	 * @param e2 Second ellipticity components, stored on device
+	 * @param Pi Maximal line-of-sight distance between lenses and shapes [physical units, i.e. Mpc]
+	 * @param N1 Number of lens1 galaxies
+	 * @param N2 Number of lens2 galaxies
+	 * @param NS Number of shape galaxies
+	 * @param r_min Minimal r [physical units, i.e. Mpc]
+	 * @param r_max Maximal r [physical units, i.e. Mpc]
+	 * @param num_bins Number of bins along one dimension
+	 * @param Greal Storage for real(Gtilde) on global memory
+	 * @param Gimag Storage for imag(Gtilde) on global memory
+	 * @param weight Storage for weight on global memory
+	 */
+	__global__ void addToGtildeIABiased(double *x1, double *y1, double *z1, double *x2, double *y2, double *z2,
+										double *xS, double *yS, double *zS, double *e1, double *e2,
+										double Pi, int N1, int N2, int NS, double r_min, double r_max, int num_bins,
+										double *Greal, double *Gimag, double *weight);
 }
-#endif //KERNELFUNCTIONS_CUH
+#endif // KERNELFUNCTIONS_CUH
